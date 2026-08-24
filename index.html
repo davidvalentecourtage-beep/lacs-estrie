@@ -114,7 +114,7 @@ tbody tr:hover td{background:var(--surface);}
 
 /* MAP VIEW */
 #map-view{display:none;}
-#map-container{height:calc(100vh - 230px);min-height:480px;width:100%;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+#map-container{position:relative;height:calc(100vh - 230px);min-height:480px;width:100%;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
 .leaflet-container{background:#f0f0f0!important;}
 .map-legend{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
@@ -337,6 +337,7 @@ tbody tr:hover td{background:var(--surface);}
 /* ── MAP LABELS ──────────────────────────────────────── */
 .map-label {
   position: absolute;
+  z-index: 500;
   white-space: nowrap;
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
@@ -886,6 +887,17 @@ let activeFilters={cat:[],nav:[],special:[],liq:[],lt:[]};
 let eauMin=1, currentView='grid', propSrcFilter='all';
 let map=null, markers=[];
 
+// ── ÉTIQUETTES DE CARTE (nom des lacs, repositionnables) ──────────────
+// Feature demandee par David mais jamais terminee (les boutons existaient
+// deja dans le HTML/CSS, toggleLabelEdit/resetLabelPositions n'etaient
+// jamais definies -> clic sans effet visible, "je ne vois pas la
+// modification" sur la position des lacs).
+const LABEL_OFFSETS_KEY='lacs-label-offsets';
+const DEFAULT_LABEL_OFFSET={dx:16,dy:-8};
+let labelOffsets=JSON.parse(localStorage.getItem(LABEL_OFFSETS_KEY)||'{}');
+let labelEls={}; // nom du lac -> element .map-label
+let labelEditMode=false;
+
 // ── PROPS STORAGE ─────────────────────────────────────
 function saveProps(){localStorage.setItem('lacs-props',JSON.stringify(properties));}
 
@@ -1115,6 +1127,7 @@ function initMap(){
   if(map)return;
   map=L.map('map-container',{center:[45.38,-72.1],zoom:9,preferCanvas:true});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18,subdomains:'abcd'}).addTo(map);
+  map.on('move zoom',positionLabels);
 }
 function makeMarkerIcon(color,active){
   const s=active?34:26;
@@ -1137,6 +1150,70 @@ function renderMap(filteredLacs){
       <button class="popup-btn" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">Voir la fiche complète →</button>`;
     markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:active?1:0.4,zIndexOffset:active?100:0}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
   });
+  renderLabels(filteredLacs);
+}
+
+// ── ÉTIQUETTES DE CARTE ────────────────────────────────
+function renderLabels(filteredLacs){
+  const container=document.getElementById('map-container');
+  Object.values(labelEls).forEach(el=>el.remove());
+  labelEls={};
+  const names=new Set(filteredLacs.map(l=>l.lac));
+  LACS.forEach(lac=>{
+    const active=names.has(lac.lac);
+    const div=document.createElement('div');
+    div.className='map-label '+(active?'active':'inactive');
+    div.textContent=lac.lac;
+    container.appendChild(div);
+    labelEls[lac.lac]=div;
+    if(labelEditMode)makeLabelDraggable(div,lac.lac);
+  });
+  positionLabels();
+}
+function positionLabels(){
+  if(!map)return;
+  LACS.forEach(lac=>{
+    const el=labelEls[lac.lac];
+    if(!el)return;
+    const pt=map.latLngToContainerPoint([lac.lat,lac.lng]);
+    const off=labelOffsets[lac.lac]||DEFAULT_LABEL_OFFSET;
+    el.style.left=(pt.x+off.dx)+'px';
+    el.style.top=(pt.y+off.dy)+'px';
+  });
+}
+function makeLabelDraggable(el,lacName){
+  el.style.cursor='move';
+  el.onpointerdown=function(e){
+    e.preventDefault();e.stopPropagation();
+    el.setPointerCapture(e.pointerId);
+    const startX=e.clientX,startY=e.clientY;
+    const orig=labelOffsets[lacName]||DEFAULT_LABEL_OFFSET;
+    function onMove(ev){
+      labelOffsets[lacName]={dx:orig.dx+(ev.clientX-startX),dy:orig.dy+(ev.clientY-startY)};
+      positionLabels();
+    }
+    function onUp(){
+      el.removeEventListener('pointermove',onMove);
+      el.removeEventListener('pointerup',onUp);
+      localStorage.setItem(LABEL_OFFSETS_KEY,JSON.stringify(labelOffsets));
+    }
+    el.addEventListener('pointermove',onMove);
+    el.addEventListener('pointerup',onUp);
+  };
+}
+function toggleLabelEdit(){
+  labelEditMode=!labelEditMode;
+  const btn=document.getElementById('btn-edit-labels');
+  if(btn)btn.textContent=labelEditMode?'✅ Terminer le repositionnement':'✏️ Repositionner étiquettes';
+  Object.entries(labelEls).forEach(([name,el])=>{
+    if(labelEditMode)makeLabelDraggable(el,name);
+    else{el.onpointerdown=null;el.style.cursor='';}
+  });
+}
+function resetLabelPositions(){
+  labelOffsets={};
+  localStorage.removeItem(LABEL_OFFSETS_KEY);
+  positionLabels();
 }
 
 // ── STATS & APPLY ────────────────────────────────────
