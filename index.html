@@ -349,30 +349,6 @@ tbody tr:hover td{background:var(--surface);}
   line-height: 1.4;
 }
 
-
-/* ── NOTES PERSONNELLES MODAL ── */
-.modal-notes-section { margin-top: 14px; }
-.modal-notes-label {
-  font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
-  color: var(--gold); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
-}
-.modal-notes-label span { font-size: 9px; color: var(--text-dim); text-transform: none; letter-spacing: 0; }
-.modal-notes-textarea {
-  width: 100%; min-height: 72px; padding: 10px 12px;
-  border-radius: 8px; border: 1px solid var(--border);
-  background: var(--surface2); color: var(--text);
-  font-family: 'DM Sans', sans-serif; font-size: 13px;
-  line-height: 1.5; outline: none; resize: vertical;
-  transition: border-color .15s;
-}
-.modal-notes-textarea:focus { border-color: var(--gold); }
-.modal-notes-textarea::placeholder { color: var(--text-dim); }
-.modal-notes-saved {
-  font-size: 11px; color: var(--green); margin-top: 4px;
-  opacity: 0; transition: opacity .3s;
-}
-.modal-notes-saved.show { opacity: 1; }
-
 /* Fix Leaflet z-index — empêche la carte de passer au-dessus des modals */
 #map-container .leaflet-pane { z-index: 4 !important; }
 #map-container .leaflet-top,
@@ -655,48 +631,13 @@ function togglePwd() {
         <span class="legend-item"><span class="legend-dot" style="background:#9b7fe8"></span>Niche</span>
         <span style="margin-left:auto;font-size:11px;color:var(--text-dim)">Cliquer sur un marqueur pour les détails</span>
       </div>
-      <div style="position:relative;">
-        <div id="map-container"></div>
-        <!-- Floating label edit toolbar -->
-        <div id="map-toolbar" style="
-          position:absolute;top:10px;right:10px;z-index:500;
-          display:flex;flex-direction:column;gap:6px;
-        ">
-          <button id="btn-edit-labels" onclick="toggleLabelEdit()" title="Repositionner les étiquettes" style="
-            display:flex;align-items:center;gap:7px;
-            padding:8px 14px;border-radius:10px;
-            border:1px solid var(--gold);background:rgba(22,28,39,0.92);
-            color:var(--gold);font-family:'DM Sans',sans-serif;font-size:12px;
-            font-weight:500;cursor:pointer;backdrop-filter:blur(6px);
-            box-shadow:0 2px 12px rgba(0,0,0,.4);transition:all .2s;
-          ">
-            <span style="font-size:14px">✏️</span>
-            <span id="btn-edit-label-text">Mode édition étiquettes</span>
-          </button>
-          <button id="btn-reset-labels" onclick="resetLabelPositions()" title="Remettre les étiquettes à leur position initiale" style="
-            display:none;align-items:center;gap:7px;
-            padding:7px 14px;border-radius:10px;
-            border:1px solid var(--border);background:rgba(22,28,39,0.92);
-            color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:11px;
-            cursor:pointer;backdrop-filter:blur(6px);
-            box-shadow:0 2px 12px rgba(0,0,0,.4);transition:all .2s;
-          ">
-            <span>↺</span> Réinitialiser positions
-          </button>
-          <div id="edit-mode-hint" style="
-            display:none;padding:7px 12px;border-radius:8px;
-            background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);
-            color:var(--gold);font-family:'DM Sans',sans-serif;font-size:11px;
-            backdrop-filter:blur(6px);line-height:1.5;max-width:220px;
-            box-shadow:0 2px 12px rgba(0,0,0,.4);
-          ">
-            🖱 <b>Glisse</b> les étiquettes<br>pour les repositionner.<br>
-            <span style="color:var(--text-muted)">Positions sauvegardées auto.</span>
-          </div>
+      <div id="map-container"></div>
+      <div class="map-info" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span>Les filtres actifs sont reflétés sur la carte. Les lacs exclus apparaissent en gris.</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="btn-edit-labels" onclick="toggleLabelEdit()" style="padding:5px 12px;border-radius:7px;border:1px solid var(--gold);background:var(--gold-dim);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">✏️ Repositionner étiquettes</button>
+          <button onclick="resetLabelPositions()" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">↺ Réinitialiser</button>
         </div>
-      </div>
-      <div class="map-info" style="font-size:11px;color:var(--text-dim);padding:6px 12px;">
-        Les lacs exclus par les filtres apparaissent en gris · Cliquer un marqueur pour la fiche
       </div>
     </div>
 
@@ -1124,7 +1065,7 @@ function renderGrid(rows){
     const isFav=favorites.includes(lac.lac);
     return`<div class="card cat-${lac.cat}" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">
       <div class="card-header">
-        <div class="card-name">${lac.lac}${getNoteFor(lac.lac)?'<span title="Note personnelle" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-left:6px;vertical-align:middle;opacity:.8;"></span>':''}</div>
+        <div class="card-name">${lac.lac}</div>
         <div style="display:flex;align-items:center;gap:7px">
           <button class="fav-btn" onclick="toggleFav('${lac.lac.replace(/'/g,"\\'")}',event)">${isFav?'★':'☆'}</button>
           <span class="cat-badge ${lac.cat}">${CAT_LABELS[lac.cat]}</span>
@@ -1231,18 +1172,6 @@ function setView(view,btn){
   }
 }
 
-
-// ── NOTES PERSONNELLES ───────────────────────────────
-const NOTES_KEY = 'lacs-notes';
-function loadNotes(){ return JSON.parse(localStorage.getItem(NOTES_KEY)||'{}'); }
-function saveNote(lacName, text){
-  const notes = loadNotes();
-  if(text.trim()) notes[lacName] = text;
-  else delete notes[lacName];
-  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
-}
-function getNoteFor(lacName){ return loadNotes()[lacName] || ''; }
-
 // ── MODAL LAC ─────────────────────────────────────────
 function openModal(lacName){
   const lac=LACS.find(l=>l.lac===lacName);if(!lac)return;
@@ -1263,31 +1192,11 @@ function openModal(lacName){
     <div class="modal-divider"></div>
     <div class="modal-section"><h4>Profil acheteur cible</h4><p>${lac.profil}</p></div>
     <div class="modal-section"><h4>Note courtier</h4><p>${lac.note}</p></div>
-    <div class="modal-divider"></div>
-    <div class="modal-notes-section">
-      <div class="modal-notes-label">✏️ Notes personnelles <span>— sauvegardées dans votre navigateur</span></div>
-      <textarea class="modal-notes-textarea" id="modal-note-field"
-        placeholder="Ajouter un commentaire sur ce lac…"
-        oninput="autoSaveNote('${lac.lac.replace(/'/g,"\\'")}', this)"
-      >${getNoteFor(lac.lac)}</textarea>
-      <div class="modal-notes-saved" id="modal-note-saved">✓ Sauvegardé</div>
-    </div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button onclick="showOnMap('${lac.lac.replace(/'/g,"\\'")}');closeModalBtn();" style="flex:1;padding:8px;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🗺 Voir sur la carte</button>
       <button onclick="closeModalBtn();setView('props',document.querySelectorAll('.view-btn')[3]);openPropForm();" style="flex:1;padding:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🏡 Ajouter une propriété</button>
     </div>`;
   document.getElementById('modal').classList.add('open');
-}
-
-
-let noteSaveTimer = null;
-function autoSaveNote(lacName, el){
-  clearTimeout(noteSaveTimer);
-  noteSaveTimer = setTimeout(()=>{
-    saveNote(lacName, el.value);
-    const saved = document.getElementById('modal-note-saved');
-    if(saved){ saved.classList.add('show'); setTimeout(()=>saved.classList.remove('show'), 2000); }
-  }, 600);
 }
 
 function showOnMap(lacName){
