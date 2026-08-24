@@ -560,6 +560,7 @@ function togglePwd() {
         <button class="chip c-blue" data-filter="nav" data-val="moteur" onclick="toggleChip(this)">⛵ Moteur</button>
         <button class="chip c-blue" data-filter="nav" data-val="electrique" onclick="toggleChip(this)">⚡ Électrique</button>
         <button class="chip c-blue" data-filter="nav" data-val="nonmotorise" onclick="toggleChip(this)">🚣 Non motorisé</button>
+        <button class="chip c-blue" data-filter="nav" data-val="sansessence" onclick="toggleChip(this)" title="Électrique ou non motorisé — exclut les lacs à moteur essence">🔌 Sans essence</button>
       </div>
     </div>
     <div class="filter-section">
@@ -1060,7 +1061,14 @@ function matchesFilters(lac){
   if(q&&!lac.lac.toLowerCase().includes(q))return false;
   if(lac.eau<eauMin)return false;
   if(activeFilters.cat.length&&!activeFilters.cat.includes(lac.cat))return false;
-  if(activeFilters.nav.length&&!activeFilters.nav.includes(lac.nav))return false;
+  if(activeFilters.nav.length){
+    // "sansessence" est un filtre compose (pas une valeur de lac.nav) :
+    // electrique OU non motorise, exclut uniquement les lacs a moteur
+    // essence (demande David : "choisir moteur electrique mais sans
+    // moteur essence").
+    const m=activeFilters.nav.some(v=>v==='sansessence'?(lac.nav==='electrique'||lac.nav==='nonmotorise'):lac.nav===v);
+    if(!m)return false;
+  }
   if(activeFilters.liq.length){const m=activeFilters.liq.some(v=>{if(v==='bonne')return lac.liqScore>=4;if(v==='moyenne')return lac.liqScore===3;if(v==='faible')return lac.liqScore<=2;});if(!m)return false;}
   if(activeFilters.lt.length){const m=activeFilters.lt.some(v=>{if(v==='eleve')return lac.ltScore>=4;if(v==='moyen')return lac.ltScore===3||lac.ltScore===3.5;if(v==='faible')return lac.ltScore<=2.5;});if(!m)return false;}
   for(const s of activeFilters.special){
