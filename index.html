@@ -900,6 +900,8 @@ const DEFAULT_LABEL_OFFSET={dx:16,dy:-8};
 let labelOffsets=JSON.parse(localStorage.getItem(LABEL_OFFSETS_KEY)||'{}');
 let labelEls={}; // nom du lac -> element .map-label
 let labelEditMode=false;
+const ANCHOR_OFFSETS_KEY='lacs-anchor-offsets';
+let anchorOffsets=JSON.parse(localStorage.getItem(ANCHOR_OFFSETS_KEY)||'{}');
 
 // ── PROPS STORAGE ─────────────────────────────────────
 function saveProps(){localStorage.setItem('lacs-props',JSON.stringify(properties));}
@@ -1186,13 +1188,14 @@ function renderLabels(filteredLacs){
     lineEls[lac.lac]=line;
 
     const dot=document.createElementNS(SVGNS,'circle');
-    dot.setAttribute('r','4');
+    dot.setAttribute('r','5');
     dot.setAttribute('fill',color);
     dot.setAttribute('stroke','#fff');
     dot.setAttribute('stroke-width','1.5');
     dot.setAttribute('opacity',active?'1':'0.4');
     svg.appendChild(dot);
     dotEls[lac.lac]=dot;
+    if(labelEditMode)makeAnchorDraggable(dot,lac.lac);
 
     const div=document.createElement('div');
     div.className='map-label '+(active?'active':'inactive');
@@ -1217,18 +1220,20 @@ function positionLabels(){
     const el=labelEls[lac.lac];
     if(!el)return;
     const pt=map.latLngToContainerPoint([lac.lat,lac.lng]);
+    const aOff=anchorOffsets[lac.lac]||{dx:0,dy:0};
+    const anchorX=pt.x+aOff.dx,anchorY=pt.y+aOff.dy;
     const off=labelOffsets[lac.lac]||DEFAULT_LABEL_OFFSET;
     const labelX=pt.x+off.dx,labelY=pt.y+off.dy;
     el.style.left=labelX+'px';
     el.style.top=labelY+'px';
 
     const dot=dotEls[lac.lac],line=lineEls[lac.lac];
-    if(dot){dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);}
+    if(dot){dot.setAttribute('cx',anchorX);dot.setAttribute('cy',anchorY);}
     if(line){
       const w=el.offsetWidth||0,h=el.offsetHeight||0;
-      const[ex,ey]=rectEdgePoint(labelX+w/2,labelY+h/2,w/2+3,h/2+3,pt.x,pt.y);
+      const[ex,ey]=rectEdgePoint(labelX+w/2,labelY+h/2,w/2+3,h/2+3,anchorX,anchorY);
       line.setAttribute('x1',ex);line.setAttribute('y1',ey);
-      line.setAttribute('x2',pt.x);line.setAttribute('y2',pt.y);
+      line.setAttribute('x2',anchorX);line.setAttribute('y2',anchorY);
     }
   });
 }
@@ -1252,6 +1257,27 @@ function makeLabelDraggable(el,lacName){
     el.addEventListener('pointerup',onUp);
   };
 }
+function makeAnchorDraggable(dot,lacName){
+  dot.style.cursor='move';
+  dot.style.pointerEvents='auto';
+  dot.onpointerdown=function(e){
+    e.preventDefault();e.stopPropagation();
+    dot.setPointerCapture(e.pointerId);
+    const startX=e.clientX,startY=e.clientY;
+    const orig=anchorOffsets[lacName]||{dx:0,dy:0};
+    function onMove(ev){
+      anchorOffsets[lacName]={dx:orig.dx+(ev.clientX-startX),dy:orig.dy+(ev.clientY-startY)};
+      positionLabels();
+    }
+    function onUp(){
+      dot.removeEventListener('pointermove',onMove);
+      dot.removeEventListener('pointerup',onUp);
+      localStorage.setItem(ANCHOR_OFFSETS_KEY,JSON.stringify(anchorOffsets));
+    }
+    dot.addEventListener('pointermove',onMove);
+    dot.addEventListener('pointerup',onUp);
+  };
+}
 function toggleLabelEdit(){
   labelEditMode=!labelEditMode;
   const btn=document.getElementById('btn-edit-labels');
@@ -1260,10 +1286,16 @@ function toggleLabelEdit(){
     if(labelEditMode)makeLabelDraggable(el,name);
     else{el.onpointerdown=null;el.style.cursor='';}
   });
+  Object.entries(dotEls).forEach(([name,dot])=>{
+    if(labelEditMode)makeAnchorDraggable(dot,name);
+    else{dot.onpointerdown=null;dot.style.cursor='';dot.style.pointerEvents='none';}
+  });
 }
 function resetLabelPositions(){
   labelOffsets={};
+  anchorOffsets={};
   localStorage.removeItem(LABEL_OFFSETS_KEY);
+  localStorage.removeItem(ANCHOR_OFFSETS_KEY);
   positionLabels();
 }
 
