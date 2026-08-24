@@ -900,8 +900,11 @@ const DEFAULT_LABEL_OFFSET={dx:16,dy:-8};
 let labelOffsets=JSON.parse(localStorage.getItem(LABEL_OFFSETS_KEY)||'{}');
 let labelEls={}; // nom du lac -> element .map-label
 let labelEditMode=false;
-const ANCHOR_OFFSETS_KEY='lacs-anchor-offsets';
-let anchorOffsets=JSON.parse(localStorage.getItem(ANCHOR_OFFSETS_KEY)||'{}');
+// Position du point d'ancrage en lat/lng absolue (pas en offset pixels) :
+// un offset pixel fixe representerait une distance geo differente a chaque
+// zoom, ce qui faisait "deriver" le point loin du lac en zoomant.
+const ANCHOR_POS_KEY='lacs-anchor-positions';
+let anchorPositions=JSON.parse(localStorage.getItem(ANCHOR_POS_KEY)||'{}');
 
 // ── PROPS STORAGE ─────────────────────────────────────
 function saveProps(){localStorage.setItem('lacs-props',JSON.stringify(properties));}
@@ -1219,11 +1222,11 @@ function positionLabels(){
   LACS.forEach(lac=>{
     const el=labelEls[lac.lac];
     if(!el)return;
-    const pt=map.latLngToContainerPoint([lac.lat,lac.lng]);
-    const aOff=anchorOffsets[lac.lac]||{dx:0,dy:0};
-    const anchorX=pt.x+aOff.dx,anchorY=pt.y+aOff.dy;
+    const anchorLatLng=anchorPositions[lac.lac]||{lat:lac.lat,lng:lac.lng};
+    const anchorPt=map.latLngToContainerPoint([anchorLatLng.lat,anchorLatLng.lng]);
+    const anchorX=anchorPt.x,anchorY=anchorPt.y;
     const off=labelOffsets[lac.lac]||DEFAULT_LABEL_OFFSET;
-    const labelX=pt.x+off.dx,labelY=pt.y+off.dy;
+    const labelX=anchorX+off.dx,labelY=anchorY+off.dy;
     el.style.left=labelX+'px';
     el.style.top=labelY+'px';
 
@@ -1263,16 +1266,17 @@ function makeAnchorDraggable(dot,lacName){
   dot.onpointerdown=function(e){
     e.preventDefault();e.stopPropagation();
     dot.setPointerCapture(e.pointerId);
-    const startX=e.clientX,startY=e.clientY;
-    const orig=anchorOffsets[lacName]||{dx:0,dy:0};
+    const container=document.getElementById('map-container');
     function onMove(ev){
-      anchorOffsets[lacName]={dx:orig.dx+(ev.clientX-startX),dy:orig.dy+(ev.clientY-startY)};
+      const rect=container.getBoundingClientRect();
+      const latlng=map.containerPointToLatLng(L.point(ev.clientX-rect.left,ev.clientY-rect.top));
+      anchorPositions[lacName]={lat:latlng.lat,lng:latlng.lng};
       positionLabels();
     }
     function onUp(){
       dot.removeEventListener('pointermove',onMove);
       dot.removeEventListener('pointerup',onUp);
-      localStorage.setItem(ANCHOR_OFFSETS_KEY,JSON.stringify(anchorOffsets));
+      localStorage.setItem(ANCHOR_POS_KEY,JSON.stringify(anchorPositions));
     }
     dot.addEventListener('pointermove',onMove);
     dot.addEventListener('pointerup',onUp);
@@ -1293,9 +1297,9 @@ function toggleLabelEdit(){
 }
 function resetLabelPositions(){
   labelOffsets={};
-  anchorOffsets={};
+  anchorPositions={};
   localStorage.removeItem(LABEL_OFFSETS_KEY);
-  localStorage.removeItem(ANCHOR_OFFSETS_KEY);
+  localStorage.removeItem(ANCHOR_POS_KEY);
   positionLabels();
 }
 
