@@ -493,6 +493,23 @@ function togglePwd() {
     document.getElementById('login-screen').style.display = 'none';
   }
 })();
+
+// ── Connexion auto depuis un lien du CRM (?pwd=...) ──────────────────
+// Evite de retaper le mot de passe quand on arrive via le menu Outils >
+// Lacs du CRM. Meme verification (hash) que la saisie manuelle. Nettoie
+// l'URL ensuite pour ne pas laisser le mot de passe visible dans la barre
+// d'adresse.
+(async function autoLoginFromLink() {
+  const params = new URLSearchParams(location.search);
+  const autoPwd = params.get('pwd');
+  if (!autoPwd) return;
+  const hash = await sha256(autoPwd);
+  if (hash === PWD_HASH) {
+    sessionStorage.setItem(SESSION_KEY, Date.now().toString());
+    document.getElementById('login-screen').style.display = 'none';
+  }
+  history.replaceState({}, '', location.pathname + location.hash);
+})();
 </script>
 
 <style>
