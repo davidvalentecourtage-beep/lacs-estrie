@@ -656,7 +656,7 @@ function togglePwd() {
         <span class="legend-item"><span class="legend-dot" style="background:#9b7fe8"></span>Niche</span>
         <span style="margin-left:auto;font-size:11px;color:var(--text-dim)">Cliquer sur un marqueur pour les détails</span>
       </div>
-      <div id="map-container"></div>
+      <div id="map-container"><svg id="label-lines" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:499;"></svg></div>
       <div class="map-info">
         <span>Les filtres actifs sont reflétés sur la carte. Les lacs exclus apparaissent en gris.</span>
       </div>
@@ -1164,22 +1164,52 @@ function renderMap(filteredLacs){
 }
 
 // ── ÉTIQUETTES DE CARTE ────────────────────────────────
+const SVGNS='http://www.w3.org/2000/svg';
+let lineEls={},dotEls={};
 function renderLabels(filteredLacs){
   const container=document.getElementById('map-container');
+  const svg=document.getElementById('label-lines');
   Object.values(labelEls).forEach(el=>el.remove());
   labelEls={};
+  svg.innerHTML='';
+  lineEls={};dotEls={};
   const names=new Set(filteredLacs.map(l=>l.lac));
   LACS.forEach(lac=>{
     const active=names.has(lac.lac);
+    const color=CAT_COLORS[lac.cat];
+
+    const line=document.createElementNS(SVGNS,'line');
+    line.setAttribute('stroke',color);
+    line.setAttribute('stroke-width','1.5');
+    line.setAttribute('opacity',active?'0.8':'0.3');
+    svg.appendChild(line);
+    lineEls[lac.lac]=line;
+
+    const dot=document.createElementNS(SVGNS,'circle');
+    dot.setAttribute('r','4');
+    dot.setAttribute('fill',color);
+    dot.setAttribute('stroke','#fff');
+    dot.setAttribute('stroke-width','1.5');
+    dot.setAttribute('opacity',active?'1':'0.4');
+    svg.appendChild(dot);
+    dotEls[lac.lac]=dot;
+
     const div=document.createElement('div');
     div.className='map-label '+(active?'active':'inactive');
-    div.style.setProperty('--label-cat-color',CAT_COLORS[lac.cat]);
+    div.style.setProperty('--label-cat-color',color);
     div.textContent=lac.lac;
     container.appendChild(div);
     labelEls[lac.lac]=div;
     if(labelEditMode)makeLabelDraggable(div,lac.lac);
   });
   positionLabels();
+}
+// Point du bord de l'étiquette le plus proche du lac, pour ancrer la ligne.
+function rectEdgePoint(cx,cy,halfW,halfH,tx,ty){
+  const dx=tx-cx,dy=ty-cy;
+  if(dx===0&&dy===0)return[cx,cy];
+  const scale=Math.min(dx?halfW/Math.abs(dx):Infinity,dy?halfH/Math.abs(dy):Infinity,1);
+  return[cx+dx*scale,cy+dy*scale];
 }
 function positionLabels(){
   if(!map)return;
@@ -1188,8 +1218,18 @@ function positionLabels(){
     if(!el)return;
     const pt=map.latLngToContainerPoint([lac.lat,lac.lng]);
     const off=labelOffsets[lac.lac]||DEFAULT_LABEL_OFFSET;
-    el.style.left=(pt.x+off.dx)+'px';
-    el.style.top=(pt.y+off.dy)+'px';
+    const labelX=pt.x+off.dx,labelY=pt.y+off.dy;
+    el.style.left=labelX+'px';
+    el.style.top=labelY+'px';
+
+    const dot=dotEls[lac.lac],line=lineEls[lac.lac];
+    if(dot){dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);}
+    if(line){
+      const w=el.offsetWidth||0,h=el.offsetHeight||0;
+      const[ex,ey]=rectEdgePoint(labelX+w/2,labelY+h/2,w/2+3,h/2+3,pt.x,pt.y);
+      line.setAttribute('x1',ex);line.setAttribute('y1',ey);
+      line.setAttribute('x2',pt.x);line.setAttribute('y2',pt.y);
+    }
   });
 }
 function makeLabelDraggable(el,lacName){
