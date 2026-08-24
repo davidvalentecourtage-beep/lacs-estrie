@@ -623,6 +623,10 @@ function togglePwd() {
         <button class="view-btn" onclick="setView('map',this)">🗺 Carte</button>
         <button class="view-btn" onclick="setView('props',this)">🏡 Propriétés</button>
       </div>
+      <div id="label-edit-controls" style="display:none;gap:8px;align-items:center;">
+        <button id="btn-edit-labels" onclick="toggleLabelEdit()" style="padding:10px 20px;border-radius:8px;border:2px solid var(--gold);background:var(--gold-dim);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">✏️ Repositionner étiquettes</button>
+        <button onclick="resetLabelPositions()" style="padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">↺ Réinitialiser</button>
+      </div>
     </div>
 
     <!-- VUE GRILLE -->
@@ -652,12 +656,8 @@ function togglePwd() {
         <span style="margin-left:auto;font-size:11px;color:var(--text-dim)">Cliquer sur un marqueur pour les détails</span>
       </div>
       <div id="map-container"></div>
-      <div class="map-info" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div class="map-info">
         <span>Les filtres actifs sont reflétés sur la carte. Les lacs exclus apparaissent en gris.</span>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button id="btn-edit-labels" onclick="toggleLabelEdit()" style="padding:5px 12px;border-radius:7px;border:1px solid var(--gold);background:var(--gold-dim);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">✏️ Repositionner étiquettes</button>
-          <button onclick="resetLabelPositions()" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">↺ Réinitialiser</button>
-        </div>
       </div>
     </div>
 
@@ -1264,6 +1264,7 @@ function setView(view,btn){
   document.getElementById('table-view').style.display=view==='table'?'block':'none';
   document.getElementById('map-view').style.display=view==='map'?'block':'none';
   document.getElementById('props-view').style.display=view==='props'?'block':'none';
+  document.getElementById('label-edit-controls').style.display=view==='map'?'flex':'none';
   document.getElementById('empty-state').style.display='none';
   if(view==='map'){const f=LACS.filter(matchesFilters);renderMap(f);setTimeout(()=>{if(map)map.invalidateSize();},100);}
   if(view==='props'){renderProps();document.getElementById('result-count').textContent='Vue propriétés';}
