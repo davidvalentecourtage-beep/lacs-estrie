@@ -571,8 +571,9 @@ function togglePwd() {
     <div class="filter-section">
       <div class="filter-title">Navigation</div>
       <div class="chip-group">
-        <button class="chip c-blue" data-filter="nav" data-val="elec" onclick="toggleChip(this)" title="Lacs où les moteurs électriques sont autorisés (inclut aussi les lacs sans moteur)">⚡ Électrique autorisé</button>
-        <button class="chip c-blue" data-filter="nav" data-val="thermique" onclick="toggleChip(this)" title="Lacs où les moteurs thermiques (essence) sont autorisés">⛽ Thermique autorisé</button>
+        <button class="chip c-blue" data-filter="nav" data-val="elec" onclick="toggleChip(this)" title="Affiche les lacs qui autorisent les moteurs électriques">⚡ Moteur électrique autorisé</button>
+        <button class="chip c-blue" data-filter="nav" data-val="thermique" onclick="toggleChip(this)" title="Affiche les lacs qui autorisent les moteurs essence">⛽ Moteur essence autorisé</button>
+        <div style="font-size:10px;color:var(--text-dim);line-height:1.4;">Aucune case cochée = lacs sans aucun moteur</div>
       </div>
     </div>
     <div class="filter-section">
@@ -1084,13 +1085,19 @@ function matchesFilters(lac){
   if(q&&!lac.lac.toLowerCase().includes(q))return false;
   if(lac.eau<eauMin)return false;
   if(activeFilters.cat.length&&!activeFilters.cat.includes(lac.cat))return false;
-  if(activeFilters.nav.length){
-    // 2 cases independantes (electrique / thermique autorise), pas les 3
-    // valeurs brutes de lac.nav. Thermique coche (seul ou avec electrique)
-    // => seuls les lacs a moteur essence (qui autorisent aussi l'electrique)
-    // passent. Electrique coche seul => electrique OU sans moteur (aucun
-    // des deux n'a de moteur thermique).
-    const m=activeFilters.nav.includes('thermique')?lac.nav==='moteur':(lac.nav==='electrique'||lac.nav==='nonmotorise');
+  {
+    // Filtre navigation TOUJOURS actif (pas de "case vide = pas de filtre"
+    // comme les autres filtres) :
+    // - ni electrique ni thermique coche -> aucun moteur autorise
+    // - thermique coche (seul ou avec electrique) -> seuls les lacs a
+    //   moteur essence (qui autorisent aussi l'electrique)
+    // - electrique coche seul -> electrique OU essence (les deux
+    //   autorisent l'electrique), jamais les lacs sans moteur
+    const elec=activeFilters.nav.includes('elec'),therm=activeFilters.nav.includes('thermique');
+    let m;
+    if(!elec&&!therm)m=lac.nav==='nonmotorise';
+    else if(therm)m=lac.nav==='moteur';
+    else m=lac.nav==='electrique'||lac.nav==='moteur';
     if(!m)return false;
   }
   if(activeFilters.liq.length){const m=activeFilters.liq.some(v=>{if(v==='bonne')return lac.liqScore>=4;if(v==='moyenne')return lac.liqScore===3;if(v==='faible')return lac.liqScore<=2;});if(!m)return false;}
