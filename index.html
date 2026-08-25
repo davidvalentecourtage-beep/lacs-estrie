@@ -1233,7 +1233,7 @@ function renderLabels(filteredLacs){
     const div=document.createElement('div');
     div.className='map-label active';
     div.style.setProperty('--label-cat-color',color);
-    div.textContent=lac.lac;
+    div.textContent=lac.lac.replace(/\bLac\b\s*/gi,'').trim()||lac.lac;
     container.appendChild(div);
     labelEls[lac.lac]=div;
     if(labelEditMode)makeLabelDraggable(div,lac.lac);
