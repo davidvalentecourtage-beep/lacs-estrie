@@ -1091,15 +1091,16 @@ function matchesFilters(lac){
   if(lac.eau<eauMin)return false;
   if(activeFilters.cat.length&&!activeFilters.cat.includes(lac.cat))return false;
   if(activeFilters.nav.length){
-    // 4 chips independants, combines en OU (comme les autres filtres) :
-    // - electrique : lacs ou l'electrique est autorise (electrique OU essence,
-    //   un lac a essence autorise aussi l'electrique)
+    // 4 chips independants, combines en OU (comme les autres filtres),
+    // chacun correspond exactement a sa propre categorie de lac.nav (pas
+    // de chevauchement, ex: "electrique" n'inclut PAS les lacs a essence) :
+    // - electrique : lacs a moteur electrique seulement
     // - essence : lacs a moteur essence
     // - sansmoteur : lacs sans aucun moteur
     // - tout : n'importe quel lac
     const m=activeFilters.nav.some(v=>{
       if(v==='tout')return true;
-      if(v==='electrique')return lac.nav==='electrique'||lac.nav==='moteur';
+      if(v==='electrique')return lac.nav==='electrique';
       if(v==='essence')return lac.nav==='moteur';
       if(v==='sansmoteur')return lac.nav==='nonmotorise';
       return false;
