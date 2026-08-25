@@ -1185,10 +1185,8 @@ function makeMarkerIcon(color,active){
 function renderMap(filteredLacs){
   if(!map)initMap();
   markers.forEach(m=>m.remove());markers=[];
-  const names=new Set(filteredLacs.map(l=>l.lac));
-  LACS.forEach(lac=>{
-    const active=names.has(lac.lac);
-    const icon=makeMarkerIcon(active?CAT_COLORS[lac.cat]:'#3a4558',active);
+  filteredLacs.forEach(lac=>{
+    const icon=makeMarkerIcon(CAT_COLORS[lac.cat],true);
     const isFav=favorites.includes(lac.lac);
     const popup=`<div class="popup-name">${isFav?'★ ':''} ${lac.lac}</div>
       <div class="popup-cat"><span class="cat-badge ${lac.cat}">${CAT_LABELS[lac.cat]}</span></div>
@@ -1197,7 +1195,7 @@ function renderMap(filteredLacs){
       <div class="popup-prix">${lac.prix}</div>
       <div class="popup-note">${lac.note}</div>
       <button class="popup-btn" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">Voir la fiche complète →</button>`;
-    markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:active?1:0.4,zIndexOffset:active?100:0}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+    markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
   });
   renderLabels(filteredLacs);
 }
@@ -1212,15 +1210,13 @@ function renderLabels(filteredLacs){
   labelEls={};
   svg.innerHTML='';
   lineEls={};dotEls={};
-  const names=new Set(filteredLacs.map(l=>l.lac));
-  LACS.forEach(lac=>{
-    const active=names.has(lac.lac);
+  filteredLacs.forEach(lac=>{
     const color=CAT_COLORS[lac.cat];
 
     const line=document.createElementNS(SVGNS,'line');
     line.setAttribute('stroke',color);
     line.setAttribute('stroke-width','1.5');
-    line.setAttribute('opacity',active?'0.8':'0.3');
+    line.setAttribute('opacity','0.8');
     svg.appendChild(line);
     lineEls[lac.lac]=line;
 
@@ -1229,13 +1225,13 @@ function renderLabels(filteredLacs){
     dot.setAttribute('fill',color);
     dot.setAttribute('stroke','#fff');
     dot.setAttribute('stroke-width','1.5');
-    dot.setAttribute('opacity',active?'1':'0.4');
+    dot.setAttribute('opacity','1');
     svg.appendChild(dot);
     dotEls[lac.lac]=dot;
     if(labelEditMode)makeAnchorDraggable(dot,lac.lac);
 
     const div=document.createElement('div');
-    div.className='map-label '+(active?'active':'inactive');
+    div.className='map-label active';
     div.style.setProperty('--label-cat-color',color);
     div.textContent=lac.lac;
     container.appendChild(div);
