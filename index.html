@@ -361,6 +361,7 @@ tbody tr:hover td{background:var(--surface);}
   transition: box-shadow 0.15s;
   letter-spacing: 0.01em;
   line-height: 1.4;
+  cursor: pointer;
 }
 
 /* Fix Leaflet z-index — empêche la carte de passer au-dessus des modals */
@@ -1238,9 +1239,13 @@ function renderMap(filteredLacs){
       <div class="popup-note">${lac.note}</div>
       <button class="popup-btn" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">Voir la fiche complète →</button>`;
     const poly=findLakePolygon(lac);
+    const color=CAT_COLORS[lac.cat];
     if(poly){
-      const color=CAT_COLORS[lac.cat];
       polygonLayers.push(L.polygon(poly,{color,weight:1.5,opacity:0.7,fillColor:color,fillOpacity:0.35}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+    }else{
+      // Pas de contour reel trouve (absent d'OpenStreetMap) : petit cercle
+      // colore de repli, pour que chaque lac soit quand meme visible.
+      polygonLayers.push(L.circle([lac.lat,lac.lng],{radius:130,color,weight:1.5,opacity:0.7,fillColor:color,fillOpacity:0.4}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
     }
     markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
   });
@@ -1283,6 +1288,7 @@ function renderLabels(filteredLacs){
     div.className='map-label active';
     div.style.setProperty('--label-cat-color',color);
     div.textContent=lac.lac.replace(/\bLac\b\s*/gi,'').trim()||lac.lac;
+    if(!labelEditMode)div.onclick=()=>openModal(lac.lac);
     container.appendChild(div);
     labelEls[lac.lac]=div;
     if(labelEditMode)makeLabelDraggable(div,lac.lac);
@@ -1371,8 +1377,8 @@ function toggleLabelEdit(){
   const btn=document.getElementById('btn-edit-labels');
   if(btn)btn.textContent=labelEditMode?'✅ Terminer le repositionnement':'✏️ Repositionner étiquettes';
   Object.entries(labelEls).forEach(([name,el])=>{
-    if(labelEditMode)makeLabelDraggable(el,name);
-    else{el.onpointerdown=null;el.style.cursor='';}
+    if(labelEditMode){makeLabelDraggable(el,name);el.onclick=null;}
+    else{el.onpointerdown=null;el.style.cursor='';el.onclick=()=>openModal(name);}
   });
   Object.entries(dotEls).forEach(([name,dot])=>{
     dot.setAttribute('opacity',labelEditMode?'1':'0');
