@@ -1189,9 +1189,11 @@ function initMap(){
   map.on('move zoom',positionLabels);
   loadLakePolygons();
 }
-function makeMarkerIcon(color,active){
+function makeMarkerIcon(){
+  // Icone invisible : garde le marqueur cliquable (popup) sans dessiner de
+  // point sur la carte, le contour du lac (ou la ligne d'etiquette) suffit.
   const s=6;
-  return L.divIcon({html:`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 6 6"><circle cx="3" cy="3" r="2.5" fill="${color}" opacity="${active?0.9:0.35}"/></svg>`,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2],popupAnchor:[0,-(s/2)]});
+  return L.divIcon({html:'',className:'',iconSize:[s,s],iconAnchor:[s/2,s/2],popupAnchor:[0,-(s/2)]});
 }
 
 // ── CONTOURS DE LACS (remplissage colore) ──────────────
@@ -1223,7 +1225,7 @@ function renderMap(filteredLacs){
   markers.forEach(m=>m.remove());markers=[];
   polygonLayers.forEach(p=>p.remove());polygonLayers=[];
   filteredLacs.forEach(lac=>{
-    const icon=makeMarkerIcon(CAT_COLORS[lac.cat],true);
+    const icon=makeMarkerIcon();
     const isFav=favorites.includes(lac.lac);
     const popup=`<div class="popup-name">${isFav?'★ ':''} ${lac.lac}</div>
       <div class="popup-cat"><span class="cat-badge ${lac.cat}">${CAT_LABELS[lac.cat]}</span></div>
@@ -1267,7 +1269,9 @@ function renderLabels(filteredLacs){
     dot.setAttribute('fill',color);
     dot.setAttribute('stroke','#fff');
     dot.setAttribute('stroke-width','1.5');
-    dot.setAttribute('opacity','1');
+    // Point cache par defaut : visible seulement en mode repositionnement,
+    // pour ne pas encombrer la carte (le contour du lac / la ligne suffit).
+    dot.setAttribute('opacity',labelEditMode?'1':'0');
     svg.appendChild(dot);
     dotEls[lac.lac]=dot;
     if(labelEditMode)makeAnchorDraggable(dot,lac.lac);
@@ -1363,6 +1367,7 @@ function toggleLabelEdit(){
     else{el.onpointerdown=null;el.style.cursor='';}
   });
   Object.entries(dotEls).forEach(([name,dot])=>{
+    dot.setAttribute('opacity',labelEditMode?'1':'0');
     if(labelEditMode)makeAnchorDraggable(dot,name);
     else{dot.onpointerdown=null;dot.style.cursor='';dot.style.pointerEvents='none';}
   });
