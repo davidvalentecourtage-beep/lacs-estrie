@@ -571,9 +571,10 @@ function togglePwd() {
     <div class="filter-section">
       <div class="filter-title">Navigation</div>
       <div class="chip-group">
-        <button class="chip c-blue" data-filter="nav" data-val="elec" onclick="toggleChip(this)" title="Affiche les lacs qui autorisent les moteurs électriques">⚡ Moteur électrique autorisé</button>
-        <button class="chip c-blue" data-filter="nav" data-val="thermique" onclick="toggleChip(this)" title="Affiche les lacs qui autorisent les moteurs essence">⛽ Moteur essence autorisé</button>
-        <div style="font-size:10px;color:var(--text-dim);line-height:1.4;">Aucune case cochée = lacs sans aucun moteur</div>
+        <button class="chip c-blue" data-filter="nav" data-val="electrique" onclick="toggleChip(this)" title="Affiche les lacs où les moteurs électriques sont autorisés">⚡ Moteur électrique</button>
+        <button class="chip c-blue" data-filter="nav" data-val="essence" onclick="toggleChip(this)" title="Affiche les lacs où les moteurs essence sont autorisés">⛽ Moteur essence</button>
+        <button class="chip c-blue" data-filter="nav" data-val="sansmoteur" onclick="toggleChip(this)" title="Affiche les lacs où aucun moteur n'est autorisé">🚣 Sans moteur</button>
+        <button class="chip c-blue" data-filter="nav" data-val="tout" onclick="toggleChip(this)" title="Affiche tous les lacs, peu importe la navigation">◎ Tout</button>
       </div>
     </div>
     <div class="filter-section">
@@ -1085,19 +1086,20 @@ function matchesFilters(lac){
   if(q&&!lac.lac.toLowerCase().includes(q))return false;
   if(lac.eau<eauMin)return false;
   if(activeFilters.cat.length&&!activeFilters.cat.includes(lac.cat))return false;
-  {
-    // Filtre navigation TOUJOURS actif (pas de "case vide = pas de filtre"
-    // comme les autres filtres) :
-    // - ni electrique ni thermique coche -> aucun moteur autorise
-    // - thermique coche (seul ou avec electrique) -> seuls les lacs a
-    //   moteur essence (qui autorisent aussi l'electrique)
-    // - electrique coche seul -> electrique OU essence (les deux
-    //   autorisent l'electrique), jamais les lacs sans moteur
-    const elec=activeFilters.nav.includes('elec'),therm=activeFilters.nav.includes('thermique');
-    let m;
-    if(!elec&&!therm)m=lac.nav==='nonmotorise';
-    else if(therm)m=lac.nav==='moteur';
-    else m=lac.nav==='electrique'||lac.nav==='moteur';
+  if(activeFilters.nav.length){
+    // 4 chips independants, combines en OU (comme les autres filtres) :
+    // - electrique : lacs ou l'electrique est autorise (electrique OU essence,
+    //   un lac a essence autorise aussi l'electrique)
+    // - essence : lacs a moteur essence
+    // - sansmoteur : lacs sans aucun moteur
+    // - tout : n'importe quel lac
+    const m=activeFilters.nav.some(v=>{
+      if(v==='tout')return true;
+      if(v==='electrique')return lac.nav==='electrique'||lac.nav==='moteur';
+      if(v==='essence')return lac.nav==='moteur';
+      if(v==='sansmoteur')return lac.nav==='nonmotorise';
+      return false;
+    });
     if(!m)return false;
   }
   if(activeFilters.liq.length){const m=activeFilters.liq.some(v=>{if(v==='bonne')return lac.liqScore>=4;if(v==='moyenne')return lac.liqScore===3;if(v==='faible')return lac.liqScore<=2;});if(!m)return false;}
