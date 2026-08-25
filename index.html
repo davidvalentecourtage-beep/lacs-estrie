@@ -81,6 +81,17 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 
 /* GRID */
 .grid-view{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;}
+
+/* NAV COLUMNS */
+.nav-view{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start;}
+@media(max-width:900px){.nav-view{grid-template-columns:1fr;}}
+.nav-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.nav-col-header{padding:14px;border-bottom:1px solid var(--border);background:var(--surface2);}
+.nav-col-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);}
+.nav-col-subtitle{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.nav-col-count{font-size:11px;color:var(--text-dim);margin-top:6px;}
+.nav-col-body{padding:12px;display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 320px);overflow-y:auto;}
+.nav-col-empty{font-size:12px;color:var(--text-dim);text-align:center;padding:20px 0;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-accent,var(--border));}
 .card:hover{border-color:var(--card-accent,var(--gold));transform:translateY(-1px);box-shadow:var(--shadow);}
@@ -620,6 +631,7 @@ function togglePwd() {
         <button class="view-btn active" onclick="setView('grid',this)">⊞ Grille</button>
         <button class="view-btn" onclick="setView('table',this)">☰ Tableau</button>
         <button class="view-btn" onclick="setView('map',this)">🗺 Carte</button>
+        <button class="view-btn" onclick="setView('nav',this)">🧭 Navigation</button>
         <button class="view-btn" onclick="setView('props',this)">🏡 Propriétés</button>
       </div>
       <div id="label-edit-controls" style="display:none;gap:8px;align-items:center;">
@@ -630,6 +642,9 @@ function togglePwd() {
 
     <!-- VUE GRILLE -->
     <div class="grid-view" id="grid-view"></div>
+
+    <!-- VUE NAVIGATION (3 colonnes) -->
+    <div class="nav-view" id="nav-view" style="display:none"></div>
 
     <!-- VUE TABLEAU -->
     <div class="table-wrap" id="table-view" style="display:none">
@@ -1104,11 +1119,9 @@ function pillBaignade(b){return b?'<span class="pill ok">🏊 Baignade</span>':'
 function pillTete(t){return t===true?'<span class="pill ok">🏔 Lac de tête</span>':(t==='partial'?'<span class="pill warn">⚠️ Tête partielle</span>':'');}
 function pillProbleme(p){return p==='Faible'?'<span class="pill ok">✅ Sans problème</span>':`<span class="pill warn">${p}</span>`;}
 
-function renderGrid(rows){
-  const el=document.getElementById('grid-view');
-  el.innerHTML=rows.map(lac=>{
-    const isFav=favorites.includes(lac.lac);
-    return`<div class="card cat-${lac.cat}" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">
+function lacCardHTML(lac){
+  const isFav=favorites.includes(lac.lac);
+  return`<div class="card cat-${lac.cat}" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">
       <div class="card-header">
         <div class="card-name">${lac.lac}</div>
         <div style="display:flex;align-items:center;gap:7px">
@@ -1120,6 +1133,26 @@ function renderGrid(rows){
       <div class="card-pills">${pillBaignade(lac.baignade)}${pillNav(lac.nav)}${pillTete(lac.tete)}${pillProbleme(lac.problemes)}</div>
       <div class="card-prix">${lac.prix}</div>
       <div class="card-profil">${lac.profil}</div>
+    </div>`;
+}
+function renderGrid(rows){
+  document.getElementById('grid-view').innerHTML=rows.map(lacCardHTML).join('');
+}
+function renderNavColumns(rows){
+  const cols=[
+    {key:'nonmotorise',title:'🚣 Sans moteur',subtitle:'Ni électrique, ni thermique'},
+    {key:'electrique',title:'⚡ Électrique',subtitle:'Moteur électrique seulement'},
+    {key:'moteur',title:'⛵ Thermique',subtitle:'Moteur essence autorisé'},
+  ];
+  document.getElementById('nav-view').innerHTML=cols.map(c=>{
+    const items=rows.filter(l=>l.nav===c.key);
+    return`<div class="nav-col">
+      <div class="nav-col-header">
+        <div class="nav-col-title">${c.title}</div>
+        <div class="nav-col-subtitle">${c.subtitle}</div>
+        <div class="nav-col-count">${items.length} lac${items.length>1?'s':''}</div>
+      </div>
+      <div class="nav-col-body">${items.map(lacCardHTML).join('')||'<div class="nav-col-empty">Aucun lac</div>'}</div>
     </div>`;
   }).join('');
 }
@@ -1323,8 +1356,9 @@ function applyFilters(){
   document.getElementById('count-badge').textContent=sorted.length+' lac'+(sorted.length>1?'s':'');
   document.getElementById('result-count').textContent=sorted.length+' lac'+(sorted.length>1?'s':'')+' affiché'+(sorted.length>1?'s':'');
   const empty=document.getElementById('empty-state');
-  if(sorted.length===0&&currentView!=='props'){empty.style.display='block';document.getElementById('grid-view').innerHTML='';document.getElementById('table-body').innerHTML='';}
+  if(sorted.length===0&&currentView!=='props'&&currentView!=='nav'){empty.style.display='block';document.getElementById('grid-view').innerHTML='';document.getElementById('table-body').innerHTML='';}
   else{empty.style.display='none';renderGrid(sorted);renderTable(sorted);}
+  renderNavColumns(sorted);
   if(currentView==='map')renderMap(filtered);
 }
 
@@ -1342,6 +1376,7 @@ function setView(view,btn){
   document.getElementById('grid-view').style.display=view==='grid'?'grid':'none';
   document.getElementById('table-view').style.display=view==='table'?'block':'none';
   document.getElementById('map-view').style.display=view==='map'?'block':'none';
+  document.getElementById('nav-view').style.display=view==='nav'?'grid':'none';
   document.getElementById('props-view').style.display=view==='props'?'block':'none';
   document.getElementById('label-edit-controls').style.display=view==='map'?'flex':'none';
   document.getElementById('empty-state').style.display='none';
