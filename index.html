@@ -559,10 +559,8 @@ function togglePwd() {
     <div class="filter-section">
       <div class="filter-title">Navigation</div>
       <div class="chip-group">
-        <button class="chip c-blue" data-filter="nav" data-val="moteur" onclick="toggleChip(this)">⛵ Moteur</button>
-        <button class="chip c-blue" data-filter="nav" data-val="electrique" onclick="toggleChip(this)">⚡ Électrique</button>
-        <button class="chip c-blue" data-filter="nav" data-val="nonmotorise" onclick="toggleChip(this)">🚣 Non motorisé</button>
-        <button class="chip c-blue" data-filter="nav" data-val="sansessence" onclick="toggleChip(this)" title="Électrique ou non motorisé — exclut les lacs à moteur essence">🔌 Sans essence</button>
+        <button class="chip c-blue" data-filter="nav" data-val="elec" onclick="toggleChip(this)" title="Lacs où les moteurs électriques sont autorisés (inclut aussi les lacs sans moteur)">⚡ Électrique autorisé</button>
+        <button class="chip c-blue" data-filter="nav" data-val="thermique" onclick="toggleChip(this)" title="Lacs où les moteurs thermiques (essence) sont autorisés">⛽ Thermique autorisé</button>
       </div>
     </div>
     <div class="filter-section">
@@ -1071,11 +1069,12 @@ function matchesFilters(lac){
   if(lac.eau<eauMin)return false;
   if(activeFilters.cat.length&&!activeFilters.cat.includes(lac.cat))return false;
   if(activeFilters.nav.length){
-    // "sansessence" est un filtre compose (pas une valeur de lac.nav) :
-    // electrique OU non motorise, exclut uniquement les lacs a moteur
-    // essence (demande David : "choisir moteur electrique mais sans
-    // moteur essence").
-    const m=activeFilters.nav.some(v=>v==='sansessence'?(lac.nav==='electrique'||lac.nav==='nonmotorise'):lac.nav===v);
+    // 2 cases independantes (electrique / thermique autorise), pas les 3
+    // valeurs brutes de lac.nav. Thermique coche (seul ou avec electrique)
+    // => seuls les lacs a moteur essence (qui autorisent aussi l'electrique)
+    // passent. Electrique coche seul => electrique OU sans moteur (aucun
+    // des deux n'a de moteur thermique).
+    const m=activeFilters.nav.includes('thermique')?lac.nav==='moteur':(lac.nav==='electrique'||lac.nav==='nonmotorise');
     if(!m)return false;
   }
   if(activeFilters.liq.length){const m=activeFilters.liq.some(v=>{if(v==='bonne')return lac.liqScore>=4;if(v==='moyenne')return lac.liqScore===3;if(v==='faible')return lac.liqScore<=2;});if(!m)return false;}
