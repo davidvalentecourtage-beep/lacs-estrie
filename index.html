@@ -111,6 +111,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .pill.ok{color:var(--green);background:var(--green-dim);border-color:rgba(46,204,138,.2);}
 .pill.warn{color:var(--amber);background:var(--amber-dim);border-color:rgba(245,166,35,.2);}
 .pill.bad{color:var(--red);background:var(--red-dim);border-color:rgba(224,92,92,.2);}
+.pill.act{color:var(--blue);background:var(--blue-dim);border-color:rgba(91,163,245,.2);}
 .card-prix{font-size:13px;font-weight:500;color:var(--gold);margin-bottom:5px;}
 .card-profil{font-size:12px;color:var(--text-muted);line-height:1.4;}
 
@@ -894,8 +895,8 @@ const LACS=[
   {lac:"Lac Larouche",cat:"niche",eau:5,baignade:false,nav:"nonmotorise",tete:true,problemes:"Faible",prix:"N/A — pas de riverains",prixMin:0,liq:"N/A",liqScore:0,lt:"N/A",ltScore:0,profil:"Randonneurs, grimpeurs, amateurs de panoramas — pas de villégiature riveraine",note:"Lac de montagne avec falaises rocheuses dans le Val-Saint-François (secteur Racine). Site d'escalade rocheux reconnu. Point d'observation panoramique sur les Cantons-de-l'Est accessible par sentier (~15 min). Aucune propriété riveraine à vendre — ce n'est pas un lac de villégiature. Valeur immobilière = propriétés environnantes sur lacs voisins (Lac Miller, etc.) qui se vendent sur la proximité des sentiers et du belvédère.",lat:45.442,lng:-72.298},
   {lac:"Étang O'Malley",cat:"bad",eau:2,baignade:false,nav:"nonmotorise",tete:false,problemes:"⚠️ Stagnant",prix:"100K–300K$",prixMin:100,liq:"Très faible",liqScore:1,lt:"Très faible",ltScore:1,profil:"À éviter pour villégiature eau",note:"Étang stagnant. Pas comparable à un lac.",lat:45.268,lng:-72.152},
   {lac:"Lac à la Truite",cat:"warn",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"⚠️ Accès restreint",prix:"350K–900K$",prixMin:350,liq:"Très faible",liqScore:1,lt:"Moyen–élevé",ltScore:3.5,profil:"Acheteur averti, due diligence accès obligatoire, nature",note:"Lac écologique Orford — aucun accès public. Droits d'accès par servitude seulement : vérifier l'acte de vente et le titre avant toute offre. Côté ouest protégé à perpétuité. Eau de bonne qualité, électrique seulement. Peu de transactions = estimation difficile. À analyser au cas par cas.",lat:45.315,lng:-72.195},
-  {lac:"Lac Waterloo",cat:"warn",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Myriophylle à épis (plante envahissante)",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"À valider selon secteur riverain",note:"Lac urbain de la ville de Waterloo. Rampe de mise à l'eau réservée aux résidents (mesure de contrôle du myriophylle à épis). Baignade non aménagée au Parc du Lac Waterloo (pas de sauveteur, naturalisation des rives). Vérifier secteur précis, accès riverain et données de vente avant offre.",lat:45.3435,lng:-72.5155},
-  {lac:"Lac Malaga",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"Nature, calme garanti, secteur Austin, clientèle Montréal",note:"Association communautaire du Lac Malaga (ACLM) active — propulsion mécanique interdite, seuls les moteurs électriques faible puissance tolérés (max 0,7 kW, 7 km/h) = calme absolu. Suivi RSVL 2023 : eau de bonne qualité, légèrement enrichie en phosphore (7,8 µg/L), tests bactériologiques réguliers pour la baignade. Secteur Austin, à 8 km au sud, proche Eastman/Magog. Vérifier données de vente et règlement de l'association avant offre.",lat:45.2516,lng:-72.2585},
+  {lac:"Lac Waterloo",cat:"warn",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Myriophylle à épis (plante envahissante)",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"À valider selon secteur riverain",note:"Lac urbain de la ville de Waterloo. Rampe de mise à l'eau réservée aux résidents (mesure de contrôle du myriophylle à épis). Baignade non aménagée au Parc du Lac Waterloo (pas de sauveteur, naturalisation des rives). Vérifier secteur précis, accès riverain et données de vente avant offre.",lat:45.3435,lng:-72.5155,activites:["paddle","jeux"]},
+  {lac:"Lac Malaga",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"Nature, calme garanti, secteur Austin, clientèle Montréal",note:"Association communautaire du Lac Malaga (ACLM) active — propulsion mécanique interdite, seuls les moteurs électriques faible puissance tolérés (max 0,7 kW, 7 km/h) = calme absolu. Suivi RSVL 2023 : eau de bonne qualité, légèrement enrichie en phosphore (7,8 µg/L), tests bactériologiques réguliers pour la baignade. Secteur Austin, à 8 km au sud, proche Eastman/Magog. Vérifier données de vente et règlement de l'association avant offre.",lat:45.2516,lng:-72.2585,activites:["paddle"]},
   {lac:"Lac Miller",cat:"warn",eau:3,baignade:true,nav:"nonmotorise",tete:false,problemes:"⚠️ Santé du lac en déclin",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"Nature, tranquillité, secteur Racine/Val-Saint-François",note:"Association des propriétaires du lac Miller active (~100 riverains). Rapport d'évaluation 2022 : signes préoccupants, santé du lac en déclin graduel — à valider avant offre. Bonne baignade près des rives, quai, kayak/canot/pédalo sur place — aucune mention de bateau à moteur. Proche sentiers de l'Estrie (rando, raquette) et sentiers VTT/motoneige. Vérifier données de vente, règlement d'association et navigation exacte.",lat:45.503,lng:-72.248},
   {lac:"Lac Brousseau",cat:"warn",eau:3,baignade:true,nav:"nonmotorise",tete:false,problemes:"À valider",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"À valider selon secteur riverain",note:"Petit lac (14,1 ha) à Stukely-Sud, 2,5 km au nord-ouest du village, 3,5 km à l'est de Frost Village. Se déverse dans le ruisseau Quilliams. Aucune donnée trouvée sur l'association de riverains, la navigation ou la qualité de l'eau — à valider directement avec la municipalité avant offre.",lat:45.337,lng:-72.440},
   {lac:"Étang Peasley",cat:"mid",eau:3,baignade:true,nav:"nonmotorise",tete:false,problemes:"À valider",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"Nature, calme, secteur Austin, entre Lac Gilbert et Lac des Sitelles",note:"Association des riverains pour la protection du lac Peasley active — convention volontaire d'interdiction des bateaux à moteur (mise à jour août 2024). Secteur Austin, à ~5 km au nord du village, participe probablement au suivi RSVL de la municipalité (comme Malaga/Desmarais/Brais). Vérifier données de vente et qualité de l'eau avant offre.",lat:45.229,lng:-72.277},
@@ -1129,6 +1130,23 @@ function getSorted(rows){
 }
 
 function stars(n){return'★'.repeat(n)+'<span class="empty">'+'★'.repeat(5-n)+'</span>';}
+// ── ACTIVITÉS / ATTRAITS ────────────────────────────────
+// kayak est toujours affiche (propulsion humaine permise sur tous les
+// lacs), bateau/plage se deduisent des champs existants (nav/baignade).
+// Les autres (paddle, voile, kitesurf, jeux, tennis) ne s'affichent que
+// si confirmes pour ce lac precis via lac.activites (donnee reelle, pas
+// devinee) pour eviter d'annoncer un attrait qui n'existe pas.
+const ACTIVITY_ICONS={bateau:'🚤 Bateau',kayak:'🛶 Kayak/Canot',paddle:'🏄 Paddle',voile:'⛵ Voile',kitesurf:'🪁 Kitesurf',jeux:'🎠 Jeux enfants',plage:'🏖️ Plage',tennis:'🎾 Tennis'};
+function lacActivites(lac){
+  const acts=['kayak'];
+  if(lac.nav==='moteur')acts.push('bateau');
+  if(lac.baignade)acts.push('plage');
+  if(lac.activites)acts.push(...lac.activites);
+  return[...new Set(acts)].filter(a=>ACTIVITY_ICONS[a]);
+}
+function pillsActivites(lac){
+  return lacActivites(lac).map(a=>`<span class="pill act">${ACTIVITY_ICONS[a]}</span>`).join('');
+}
 function pillNav(nav){return`<span class="pill ok">${NAV_LABELS[nav]||nav}</span>`;}
 function pillBaignade(b){return b?'<span class="pill ok">🏊 Baignade</span>':'<span class="pill bad">❌ Baignade</span>';}
 function pillTete(t){return t===true?'<span class="pill ok">🏔 Lac de tête</span>':(t==='partial'?'<span class="pill warn">⚠️ Tête partielle</span>':'');}
@@ -1146,6 +1164,7 @@ function lacCardHTML(lac){
       </div>
       <div class="card-stars">${stars(lac.eau)}</div>
       <div class="card-pills">${pillBaignade(lac.baignade)}${pillNav(lac.nav)}${pillTete(lac.tete)}${pillProbleme(lac.problemes)}</div>
+      <div class="card-pills">${pillsActivites(lac)}</div>
       <div class="card-prix">${lac.prix}</div>
       <div class="card-profil">${lac.profil}</div>
     </div>`;
@@ -1236,6 +1255,7 @@ function renderMap(filteredLacs){
       <div class="popup-cat"><span class="cat-badge ${lac.cat}">${CAT_LABELS[lac.cat]}</span></div>
       <div class="popup-stars">${'★'.repeat(lac.eau)}${'☆'.repeat(5-lac.eau)}</div>
       <div class="popup-pills">${lac.baignade?'<span class="pill ok">🏊 Baignade</span>':'<span class="pill bad">❌ Baignade</span>'}<span class="pill ok">${NAV_LABELS[lac.nav]||lac.nav}</span>${lac.tete===true?'<span class="pill ok">🏔 Tête</span>':''}</div>
+      <div class="popup-pills">${pillsActivites(lac)}</div>
       <div class="popup-prix">${lac.prix}</div>
       <div class="popup-note">${lac.note}</div>
       <button class="popup-btn" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">Voir la fiche complète →</button>`;
@@ -1465,6 +1485,7 @@ function openModal(lacName){
       <div class="modal-field"><label>Liquidité marché</label><span>${lac.liq}</span></div>
       <div class="modal-field"><label>Potentiel long terme</label><span>${lac.lt}</span></div>
     </div>
+    <div class="modal-section"><h4>Activités</h4><div class="card-pills">${pillsActivites(lac)}</div></div>
     <div class="modal-divider"></div>
     <div class="modal-section"><h4>Profil acheteur cible</h4><p>${lac.profil}</p></div>
     <div class="modal-section"><h4>Note courtier</h4><p>${lac.note}</p></div>
