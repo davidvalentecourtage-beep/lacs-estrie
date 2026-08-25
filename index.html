@@ -586,6 +586,13 @@ function togglePwd() {
         <button class="chip c-green" data-filter="special" data-val="tete" onclick="toggleChip(this)">🏔 Lac de tête</button>
         <button class="chip c-green" data-filter="special" data-val="noprobleme" onclick="toggleChip(this)">✅ Sans problème</button>
         <button class="chip c-gold" data-filter="special" data-val="fav" onclick="toggleChip(this)">★ Favoris</button>
+        <button class="chip c-blue" data-filter="special" data-val="calme" onclick="toggleChip(this)" title="Aucun moteur autorisé">🤫 Calme</button>
+        <button class="chip c-blue" data-filter="special" data-val="famille" onclick="toggleChip(this)">👨‍👩‍👧 Famille</button>
+        <button class="chip c-blue" data-filter="special" data-val="kayak" onclick="toggleChip(this)" title="Pas de moteur essence">🛶 Kayak/Canot</button>
+        <button class="chip c-blue" data-filter="special" data-val="plage" onclick="toggleChip(this)">🏖️ Plage</button>
+        <button class="chip c-blue" data-filter="special" data-val="tennis" onclick="toggleChip(this)">🎾 Tennis</button>
+        <button class="chip c-blue" data-filter="special" data-val="souscote" onclick="toggleChip(this)" title="Décrit comme sous-estimé/méconnu dans la note">💎 Sous-coté</button>
+        <button class="chip c-blue" data-filter="special" data-val="intime" onclick="toggleChip(this)" title="Décrit comme intime/discret/peu de riverains dans la note">🤍 Intime</button>
       </div>
     </div>
     <div class="filter-section">
@@ -1115,6 +1122,13 @@ function matchesFilters(lac){
     if(s==='tete'&&!lac.tete)return false;
     if(s==='noprobleme'&&lac.problemes!=='Faible')return false;
     if(s==='fav'&&!favorites.includes(lac.lac))return false;
+    if(s==='calme'&&lac.nav!=='nonmotorise')return false;
+    if(s==='famille'&&!lac.profil.toLowerCase().includes('famille'))return false;
+    if(s==='kayak'&&lac.nav==='moteur')return false;
+    if(s==='plage'&&!lac.baignade)return false;
+    if(s==='tennis'&&!(lac.activites||[]).includes('tennis'))return false;
+    if(s==='souscote'&&!/sous-estim|sous-cot|méconnu|valeur cachée|potentiel caché/i.test(lac.note+' '+lac.profil))return false;
+    if(s==='intime'&&!/intimit|peu de riverain|discr[eé]t/i.test(lac.note+' '+lac.profil))return false;
   }
   return true;
 }
