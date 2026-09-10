@@ -1307,7 +1307,10 @@ function renderMap(filteredLacs){
     }else{
       // Pas de contour reel trouve (absent d'OpenStreetMap) : petit cercle
       // colore de repli, pour que chaque lac soit quand meme visible.
-      polygonLayers.push(L.circle([lac.lat,lac.lng],{radius:130,color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.65}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+      // Pas de contour reel : cercle en pixels (pas en metres) pour rester
+      // visible a tout niveau de zoom, contrairement a L.circle qui devient
+      // invisible en dezoomant.
+      polygonLayers.push(L.circleMarker([lac.lat,lac.lng],{radius:11,color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.65}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
     }
     markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
   });
