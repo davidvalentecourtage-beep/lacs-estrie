@@ -1372,11 +1372,20 @@ function updateContourStatus(){
   if(!contourMode)return;
   el.textContent=contourLac?`Traçage : ${contourLac} (${contourPoints.length} points) — cliquez sur la carte pour ajouter des points`:'Cliquez sur un lac à tracer';
 }
+function makePointIcon(color){
+  // Marqueur DOM (pas canvas) pour les lacs sans contour reel : deplacable
+  // nativement par Leaflet (drag), contrairement a un L.circleMarker qui
+  // se dessine sur le canvas de la carte et n'est pas glissable.
+  const s=22;
+  return L.divIcon({html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);opacity:.9;"></div>`,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2],popupAnchor:[0,-(s/2)]});
+}
+let pointMarkersByLac={};
 function renderMap(filteredLacs){
   if(!map)initMap();
   lastFilteredLacs=filteredLacs;
   markers.forEach(m=>m.remove());markers=[];
   polygonLayers.forEach(p=>p.remove());polygonLayers=[];
+  pointMarkersByLac={};
   filteredLacs.forEach(lac=>{
     const icon=makeMarkerIcon();
     const isFav=favorites.includes(lac.lac);
@@ -1390,15 +1399,28 @@ function renderMap(filteredLacs){
       <button class="popup-btn" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">Voir la fiche complète →</button>`;
     const poly=findLakePolygon(lac);
     const color=CAT_COLORS[lac.cat];
+    const anchorLL=anchorPositions[lac.lac]||{lat:lac.lat,lng:lac.lng};
     if(poly){
       polygonLayers.push(L.polygon(poly,{color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.6}).addTo(map).on('click',()=>handleLacClick(lac,popup)));
+      markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).on('click',()=>handleLacClick(lac,popup)));
     }else{
-      // Pas de contour reel : cercle en pixels (pas en metres) pour rester
-      // visible a tout niveau de zoom, contrairement a L.circle qui devient
-      // invisible en dezoomant.
-      polygonLayers.push(L.circleMarker([lac.lat,lac.lng],{radius:11,color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.65}).addTo(map).on('click',()=>handleLacClick(lac,popup)));
+      // Pas de contour reel trouve : point colore deplacable (glisser pour
+      // corriger sa position — mise a jour dans anchorPositions, la meme
+      // donnee qui pilote la ligne d'etiquette).
+      const pm=L.marker([anchorLL.lat,anchorLL.lng],{icon:makePointIcon(color),draggable:labelEditMode,zIndexOffset:150,title:'Glisser pour repositionner'})
+        .addTo(map)
+        .on('click',()=>handleLacClick(lac,popup))
+        .on('drag',e=>{
+          const ll=e.target.getLatLng();
+          anchorPositions[lac.lac]={lat:ll.lat,lng:ll.lng};
+          positionLabels();
+        })
+        .on('dragend',()=>{
+          localStorage.setItem(ANCHOR_POS_KEY,JSON.stringify(anchorPositions));
+        });
+      pointMarkersByLac[lac.lac]=pm;
+      polygonLayers.push(pm);
     }
-    markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).on('click',()=>handleLacClick(lac,popup)));
   });
   renderLabels(filteredLacs);
 }
@@ -1535,6 +1557,9 @@ function toggleLabelEdit(){
     dot.setAttribute('opacity',labelEditMode?'1':'0');
     if(labelEditMode)makeAnchorDraggable(dot,name);
     else{dot.onpointerdown=null;dot.style.cursor='';dot.style.pointerEvents='none';}
+  });
+  Object.values(pointMarkersByLac).forEach(pm=>{
+    if(labelEditMode)pm.dragging.enable();else pm.dragging.disable();
   });
 }
 function resetLabelPositions(){
