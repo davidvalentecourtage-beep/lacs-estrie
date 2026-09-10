@@ -129,6 +129,7 @@ tbody tr:hover td{background:var(--surface);}
 #map-view{display:none;}
 #map-container{position:relative;height:calc(100vh - 230px);min-height:480px;width:100%;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
 .leaflet-container{background:#f0f0f0!important;}
+.leaflet-tile-pane{filter:grayscale(0.85) contrast(0.9) brightness(1.08);}
 .map-legend{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
 .legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
@@ -1302,11 +1303,11 @@ function renderMap(filteredLacs){
     const poly=findLakePolygon(lac);
     const color=CAT_COLORS[lac.cat];
     if(poly){
-      polygonLayers.push(L.polygon(poly,{color,weight:1.5,opacity:0.7,fillColor:color,fillOpacity:0.35}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+      polygonLayers.push(L.polygon(poly,{color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.6}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
     }else{
       // Pas de contour reel trouve (absent d'OpenStreetMap) : petit cercle
       // colore de repli, pour que chaque lac soit quand meme visible.
-      polygonLayers.push(L.circle([lac.lat,lac.lng],{radius:130,color,weight:1.5,opacity:0.7,fillColor:color,fillOpacity:0.4}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+      polygonLayers.push(L.circle([lac.lat,lac.lng],{radius:130,color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.65}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
     }
     markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
   });
