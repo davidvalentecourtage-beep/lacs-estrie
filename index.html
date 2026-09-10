@@ -674,6 +674,14 @@ function togglePwd() {
       <div id="label-edit-controls" style="display:none;gap:8px;align-items:center;">
         <button id="btn-edit-labels" onclick="toggleLabelEdit()" style="padding:10px 20px;border-radius:8px;border:2px solid var(--gold);background:var(--gold-dim);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">✏️ Repositionner étiquettes</button>
         <button onclick="resetLabelPositions()" style="padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">↺ Réinitialiser</button>
+        <button id="btn-trace-contour" onclick="toggleContourMode()" style="padding:10px 20px;border-radius:8px;border:2px solid var(--blue);background:var(--blue-dim);color:var(--blue);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;" title="Cliquez sur un lac puis sur la carte pour dessiner son contour">✏️ Tracer un contour</button>
+      </div>
+      <div id="contour-status" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+        <span id="contour-status-text" style="font-size:12px;color:var(--text-muted);flex:1;">Cliquez sur un lac à tracer</span>
+        <button onclick="undoContourPoint()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;">↩ Annuler point</button>
+        <button onclick="finishContour()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--green);background:var(--green-dim);color:var(--green);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;">✓ Enregistrer</button>
+        <button onclick="cancelContour()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--red);background:var(--red-dim);color:var(--red);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;">✕ Annuler</button>
+        <button onclick="deleteCurrentContour()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;" title="Supprime le contour tracé manuellement pour ce lac">🗑 Supprimer contour</button>
       </div>
     </div>
 
@@ -911,7 +919,7 @@ const LACS=[
   {lac:"Lac Louise",cat:"warn",eau:4,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Connecté (chaîne)",prix:"180K–500K$",prixMin:180,liq:"Moyenne",liqScore:3,lt:"Variable",ltScore:2.5,profil:"Budget bas, accepte contraintes, eau de bonne qualité",note:"Données 2025 : état oligotrophe, phosphore 5,9 µg/L, chlorophylle-a 1,5 µg/L — eau plutôt bonne malgré le profil budget. Lac en chaîne = vulnérable aux pollutions extérieures en amont.",lat:45.488,lng:-71.262},
   {lac:"Lac Brompton",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ EAE niveau rouge (5 espèces)",prix:"250K–800K$",prixMin:250,liq:"Bonne",liqScore:4,lt:"Moyen",ltScore:3,profil:"Lifestyle moteur, Sherbrooke proche, budget varié",note:"Classé EAE niveau rouge en 2026 — le plus contaminé de la liste locale (5 espèces envahissantes détectées), décontamination eau chaude haute pression obligatoire pour toute embarcation entrante. Par ailleurs, données 2025 sur la chimie de l'eau : phosphore 5,1 µg/L, état oligotrophe selon le ministère malgré une transparence moyenne de 3,7 m (bon sur ce plan, distinct du statut EAE). Proximité Sherbrooke = avantage. Marché actif.",lat:45.498,lng:-71.952},
   {lac:"Petit Lac Brompton",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"Faible",prix:"200K–600K$",prixMin:200,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Budget intermédiaire, proche Brompton, eau de bonne qualité",note:"Données 2025 : transparence 4,8 m, phosphore 7,6 µg/L, transition oligo-mésotrophe — probablement sous-estimé par l'ancienne mention 'fragile', qui était trop négative sans nuance. Analyse terrain requise.",lat:45.512,lng:-71.938},
-  {lac:"Petit Lac Magog",cat:"bad",eau:2,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Milieu urbain",prix:"150K–400K$",prixMin:150,liq:"Faible",liqScore:2,lt:"Faible",ltScore:2,profil:"Valeur pas liée à l'eau",note:"Moteur essence autorisé — relié au système du Lac Magog où la navigation motorisée est courante. Pas un vrai lac de villégiature. Ne pas vendre comme 'lac'.",lat:45.358,lng:-72.144},
+  {lac:"Petit Lac Magog",cat:"bad",eau:2,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Milieu urbain",prix:"150K–400K$",prixMin:150,liq:"Faible",liqScore:2,lt:"Faible",ltScore:2,profil:"Valeur pas liée à l'eau",note:"Position corrigée vers le secteur Rock Forest–Saint-Élie–Deauville (Sherbrooke, code postal J1N 1H2) où ce plan d'eau est réellement situé — l'ancienne position était erronée. Moteur essence autorisé — relié au système du Lac Magog où la navigation motorisée est courante. Pas un vrai lac de villégiature. Ne pas vendre comme 'lac'.",lat:45.363,lng:-71.998},
   {lac:"Lac Bran-de-Scie",cat:"bad",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Fragile/petit + EAE rouge (2 esp.)",prix:"150K–400K$",prixMin:150,liq:"Très faible",liqScore:1,lt:"Faible",ltScore:2,profil:"Risqué, analyse obligatoire",note:"Moteur essence autorisé — 10 km/h à 30 m de la berge, 40 km/h ailleurs (Transport Canada). Petit lac fragile, classé EAE niveau rouge en 2026 (2 espèces détectées). Risque de dégradation. Peu de transactions.",lat:45.332,lng:-72.162},
   {lac:"Étang aux Cerises",cat:"niche",eau:4,baignade:false,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"200K–500K$",prixMin:200,liq:"Très faible",liqScore:1,lt:"Stable (niche)",ltScore:2.5,profil:"Écologie, faune, pêche, pas baignade",note:"Propriété écologique. Clientèle très niche.",lat:45.312,lng:-72.305},
   {lac:"Lac Webster",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"400K–1.1M$",prixMin:400,liq:"Faible",liqScore:2,lt:"Moyen–élevé",ltScore:3.5,profil:"Famille, nature, secteur Austin/Eastman, domaine privé géré",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Domaine privé géré par le RDLW (OBNL) — vérifier les règlements du domaine avant offre. Secteur Eastman/Austin = fort attrait lifestyle. Eau de bonne qualité selon suivi municipal 2018. Bon potentiel LT grâce à la gestion collective du lac.",lat:45.302,lng:-72.327},
@@ -1252,6 +1260,7 @@ function initMap(){
   map=L.map('map-container',{center:[45.38,-72.1],zoom:9,preferCanvas:true});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19,subdomains:'abc'}).addTo(map);
   map.on('move zoom',positionLabels);
+  map.on('click',onMapClickForContour);
   loadLakePolygons();
 }
 function makeMarkerIcon(){
@@ -1281,8 +1290,76 @@ async function loadLakePolygons(){
   if(currentView==='map')renderMap(lastFilteredLacs);
   return lakePolygons;
 }
+const CUSTOM_CONTOURS_KEY='lacs-custom-contours';
+let customContours=JSON.parse(localStorage.getItem(CUSTOM_CONTOURS_KEY)||'{}');
 function findLakePolygon(lac){
-  return(lakePolygons&&lakePolygons[lac.lac])||null;
+  return customContours[lac.lac]||(lakePolygons&&lakePolygons[lac.lac])||null;
+}
+
+// ── TRAÇAGE MANUEL DE CONTOUR ───────────────────────────
+// Pour les lacs sans contour OpenStreetMap : le courtier clique sur le lac
+// pour le selectionner, puis clique sur la carte pour poser les points du
+// contour, et termine pour l'enregistrer (localStorage, remplace le cercle
+// de repli).
+let contourMode=false,contourLac=null,contourPoints=[],contourPreviewLayer=null;
+function handleLacClick(lac,popupHtml){
+  if(contourMode){selectLacForTracing(lac.lac);return;}
+  L.popup({maxWidth:280,minWidth:220}).setLatLng([lac.lat,lac.lng]).setContent(popupHtml).openOn(map);
+}
+function toggleContourMode(){
+  contourMode=!contourMode;
+  cancelContour();
+  const btn=document.getElementById('btn-trace-contour');
+  if(btn)btn.textContent=contourMode?'✅ Terminer le traçage':'✏️ Tracer un contour';
+  document.getElementById('contour-status').style.display=contourMode?'flex':'none';
+  updateContourStatus();
+}
+function selectLacForTracing(lacName){
+  contourLac=lacName;contourPoints=[];
+  redrawContourPreview();
+  updateContourStatus();
+}
+function onMapClickForContour(e){
+  if(!contourMode||!contourLac)return;
+  contourPoints.push([e.latlng.lat,e.latlng.lng]);
+  redrawContourPreview();
+  updateContourStatus();
+}
+function redrawContourPreview(){
+  if(contourPreviewLayer){contourPreviewLayer.remove();contourPreviewLayer=null;}
+  if(contourPoints.length>=2){
+    contourPreviewLayer=L.polygon(contourPoints,{color:'#fff',weight:2,dashArray:'5 5',fillOpacity:0.15}).addTo(map);
+  }
+}
+function undoContourPoint(){
+  contourPoints.pop();
+  redrawContourPreview();
+  updateContourStatus();
+}
+function finishContour(){
+  if(!contourLac||contourPoints.length<3){alert('Il faut au moins 3 points pour former un contour.');return;}
+  customContours[contourLac]=contourPoints.map(p=>[Math.round(p[0]*1e5)/1e5,Math.round(p[1]*1e5)/1e5]);
+  localStorage.setItem(CUSTOM_CONTOURS_KEY,JSON.stringify(customContours));
+  cancelContour();
+  renderMap(lastFilteredLacs);
+}
+function cancelContour(){
+  contourLac=null;contourPoints=[];
+  if(contourPreviewLayer){contourPreviewLayer.remove();contourPreviewLayer=null;}
+  updateContourStatus();
+}
+function deleteCurrentContour(){
+  if(!contourLac||!customContours[contourLac])return;
+  delete customContours[contourLac];
+  localStorage.setItem(CUSTOM_CONTOURS_KEY,JSON.stringify(customContours));
+  cancelContour();
+  renderMap(lastFilteredLacs);
+}
+function updateContourStatus(){
+  const el=document.getElementById('contour-status-text');
+  if(!el)return;
+  if(!contourMode)return;
+  el.textContent=contourLac?`Traçage : ${contourLac} (${contourPoints.length} points) — cliquez sur la carte pour ajouter des points`:'Cliquez sur un lac à tracer';
 }
 function renderMap(filteredLacs){
   if(!map)initMap();
@@ -1303,16 +1380,14 @@ function renderMap(filteredLacs){
     const poly=findLakePolygon(lac);
     const color=CAT_COLORS[lac.cat];
     if(poly){
-      polygonLayers.push(L.polygon(poly,{color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.6}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+      polygonLayers.push(L.polygon(poly,{color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.6}).addTo(map).on('click',()=>handleLacClick(lac,popup)));
     }else{
-      // Pas de contour reel trouve (absent d'OpenStreetMap) : petit cercle
-      // colore de repli, pour que chaque lac soit quand meme visible.
       // Pas de contour reel : cercle en pixels (pas en metres) pour rester
       // visible a tout niveau de zoom, contrairement a L.circle qui devient
       // invisible en dezoomant.
-      polygonLayers.push(L.circleMarker([lac.lat,lac.lng],{radius:11,color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.65}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+      polygonLayers.push(L.circleMarker([lac.lat,lac.lng],{radius:11,color,weight:2,opacity:0.95,fillColor:color,fillOpacity:0.65}).addTo(map).on('click',()=>handleLacClick(lac,popup)));
     }
-    markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+    markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).on('click',()=>handleLacClick(lac,popup)));
   });
   renderLabels(filteredLacs);
 }
