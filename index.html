@@ -600,6 +600,7 @@ function togglePwd() {
         <button class="chip c-blue" data-filter="nav" data-val="essence" onclick="toggleChip(this)" title="Affiche les lacs où les moteurs essence sont autorisés">⛽ Moteur essence</button>
         <button class="chip c-blue" data-filter="nav" data-val="sansmoteur" onclick="toggleChip(this)" title="Affiche les lacs où aucun moteur n'est autorisé">🚣 Sans moteur</button>
         <button class="chip c-blue" data-filter="nav" data-val="tout" onclick="toggleChip(this)" title="Affiche tous les lacs, peu importe la navigation">◎ Tout</button>
+        <button class="chip c-blue" data-filter="nav" data-val="saufessence" onclick="toggleChip(this)" title="Affiche tous les lacs sauf ceux où le moteur essence est autorisé (électrique et sans moteur restent affichés)">🚫⛽ Tout sauf moteur essence</button>
       </div>
     </div>
     <div class="filter-section">
@@ -1135,6 +1136,7 @@ function matchesFilters(lac){
       if(v==='electrique')return lac.nav==='electrique';
       if(v==='essence')return lac.nav==='moteur';
       if(v==='sansmoteur')return lac.nav==='nonmotorise';
+      if(v==='saufessence')return lac.nav!=='moteur';
       return false;
     });
     if(!m)return false;
