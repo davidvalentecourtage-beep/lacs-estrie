@@ -81,18 +81,6 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 
 /* GRID */
 .grid-view{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;}
-
-/* NAV COLUMNS */
-.nav-view{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start;}
-@media(max-width:900px){.nav-view{grid-template-columns:1fr;}}
-.nav-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-.nav-col-header{padding:14px;border-bottom:1px solid var(--border);background:var(--surface2);}
-.nav-col-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);}
-.nav-col-subtitle{font-size:11px;color:var(--text-muted);margin-top:2px;}
-.nav-col-count{font-size:11px;color:var(--text-dim);margin-top:6px;}
-.nav-col-body{padding:12px;display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 320px);overflow-y:auto;}
-.nav-col-body .card{flex-shrink:0;}
-.nav-col-empty{font-size:12px;color:var(--text-dim);text-align:center;padding:20px 0;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-accent,var(--border));}
 .card:hover{border-color:var(--card-accent,var(--gold));transform:translateY(-1px);box-shadow:var(--shadow);}
@@ -111,7 +99,6 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .pill.ok{color:var(--green);background:var(--green-dim);border-color:rgba(46,204,138,.2);}
 .pill.warn{color:var(--amber);background:var(--amber-dim);border-color:rgba(245,166,35,.2);}
 .pill.bad{color:var(--red);background:var(--red-dim);border-color:rgba(224,92,92,.2);}
-.pill.act{color:var(--blue);background:var(--blue-dim);border-color:rgba(91,163,245,.2);}
 .card-prix{font-size:13px;font-weight:500;color:var(--gold);margin-bottom:5px;}
 .card-profil{font-size:12px;color:var(--text-muted);line-height:1.4;}
 
@@ -127,7 +114,7 @@ tbody tr:hover td{background:var(--surface);}
 
 /* MAP VIEW */
 #map-view{display:none;}
-#map-container{position:relative;height:calc(100vh - 230px);min-height:480px;width:100%;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+#map-container{height:calc(100vh - 230px);min-height:480px;width:100%;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
 .leaflet-container{background:#f0f0f0!important;}
 .map-legend{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
@@ -350,7 +337,6 @@ tbody tr:hover td{background:var(--surface);}
 /* ── MAP LABELS ──────────────────────────────────────── */
 .map-label {
   position: absolute;
-  z-index: 500;
   white-space: nowrap;
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
@@ -358,12 +344,34 @@ tbody tr:hover td{background:var(--surface);}
   padding: 2px 6px;
   border-radius: 5px;
   pointer-events: auto;
-  touch-action: none;
   transition: box-shadow 0.15s;
   letter-spacing: 0.01em;
   line-height: 1.4;
-  cursor: pointer;
 }
+
+
+/* ── NOTES PERSONNELLES MODAL ── */
+.modal-notes-section { margin-top: 14px; }
+.modal-notes-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--gold); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+}
+.modal-notes-label span { font-size: 9px; color: var(--text-dim); text-transform: none; letter-spacing: 0; }
+.modal-notes-textarea {
+  width: 100%; min-height: 72px; padding: 10px 12px;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  line-height: 1.5; outline: none; resize: vertical;
+  transition: border-color .15s;
+}
+.modal-notes-textarea:focus { border-color: var(--gold); }
+.modal-notes-textarea::placeholder { color: var(--text-dim); }
+.modal-notes-saved {
+  font-size: 11px; color: var(--green); margin-top: 4px;
+  opacity: 0; transition: opacity .3s;
+}
+.modal-notes-saved.show { opacity: 1; }
 
 /* Fix Leaflet z-index — empêche la carte de passer au-dessus des modals */
 #map-container .leaflet-pane { z-index: 4 !important; }
@@ -375,7 +383,6 @@ tbody tr:hover td{background:var(--surface);}
   background: rgba(22,28,39,0.88);
   color: #e8e4db;
   border: 1px solid rgba(201,168,76,0.4);
-  border-left: 4px solid var(--label-cat-color, rgba(201,168,76,0.4));
   box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 .map-label.inactive {
@@ -392,6 +399,13 @@ tbody tr:hover td{background:var(--surface);}
 @media(min-width:769px){
   .bottom-nav{display:none!important;}
 }
+
+
+/* ── MAP LABELS ── */
+.map-label-wrapper { pointer-events:none; }
+.map-label { pointer-events:auto; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600; padding:2px 7px; border-radius:5px; letter-spacing:.01em; line-height:1.4; transition:box-shadow .15s; }
+.lbl-active { background:rgba(22,28,39,0.88); color:#e8e4db; border:1px solid rgba(201,168,76,0.5); box-shadow:0 1px 4px rgba(0,0,0,0.35); }
+.lbl-inactive { background:rgba(22,28,39,0.5); color:#7a8599; border:1px solid rgba(80,100,130,0.3); font-weight:400; }
 
 </style>
 </head>
@@ -510,23 +524,6 @@ function togglePwd() {
     document.getElementById('login-screen').style.display = 'none';
   }
 })();
-
-// ── Connexion auto depuis un lien du CRM (?pwd=...) ──────────────────
-// Evite de retaper le mot de passe quand on arrive via le menu Outils >
-// Lacs du CRM. Meme verification (hash) que la saisie manuelle. Nettoie
-// l'URL ensuite pour ne pas laisser le mot de passe visible dans la barre
-// d'adresse.
-(async function autoLoginFromLink() {
-  const params = new URLSearchParams(location.search);
-  const autoPwd = params.get('pwd');
-  if (!autoPwd) return;
-  const hash = await sha256(autoPwd);
-  if (hash === PWD_HASH) {
-    sessionStorage.setItem(SESSION_KEY, Date.now().toString());
-    document.getElementById('login-screen').style.display = 'none';
-  }
-  history.replaceState({}, '', location.pathname + location.hash);
-})();
 </script>
 
 <style>
@@ -573,10 +570,10 @@ function togglePwd() {
     <div class="filter-section">
       <div class="filter-title">Navigation</div>
       <div class="chip-group">
-        <button class="chip c-blue" data-filter="nav" data-val="electrique" onclick="toggleChip(this)" title="Affiche les lacs où les moteurs électriques sont autorisés">⚡ Moteur électrique</button>
-        <button class="chip c-blue" data-filter="nav" data-val="essence" onclick="toggleChip(this)" title="Affiche les lacs où les moteurs essence sont autorisés">⛽ Moteur essence</button>
-        <button class="chip c-blue" data-filter="nav" data-val="sansmoteur" onclick="toggleChip(this)" title="Affiche les lacs où aucun moteur n'est autorisé">🚣 Sans moteur</button>
-        <button class="chip c-blue" data-filter="nav" data-val="tout" onclick="toggleChip(this)" title="Affiche tous les lacs, peu importe la navigation">◎ Tout</button>
+        <button class="chip c-blue" data-filter="nav" data-val="moteur" onclick="toggleChip(this)">⛵ Moteur essence</button>
+        <button class="chip c-blue" data-filter="nav" data-val="electrique" onclick="toggleChip(this)">⚡ Moteur électrique</button>
+        <button class="chip c-blue" data-filter="nav" data-val="nonmotorise" onclick="toggleChip(this)">🚣 Sans moteur</button>
+        <button class="chip c-green" data-filter="special" data-val="sansessence" onclick="toggleChip(this)">🌿 Tout sauf essence</button>
       </div>
     </div>
     <div class="filter-section">
@@ -586,13 +583,6 @@ function togglePwd() {
         <button class="chip c-green" data-filter="special" data-val="tete" onclick="toggleChip(this)">🏔 Lac de tête</button>
         <button class="chip c-green" data-filter="special" data-val="noprobleme" onclick="toggleChip(this)">✅ Sans problème</button>
         <button class="chip c-gold" data-filter="special" data-val="fav" onclick="toggleChip(this)">★ Favoris</button>
-        <button class="chip c-blue" data-filter="special" data-val="calme" onclick="toggleChip(this)" title="Aucun moteur autorisé">🤫 Calme</button>
-        <button class="chip c-blue" data-filter="special" data-val="famille" onclick="toggleChip(this)">👨‍👩‍👧 Famille</button>
-        <button class="chip c-blue" data-filter="special" data-val="kayak" onclick="toggleChip(this)" title="Pas de moteur essence">🛶 Kayak/Canot</button>
-        <button class="chip c-blue" data-filter="special" data-val="plage" onclick="toggleChip(this)">🏖️ Plage</button>
-        <button class="chip c-blue" data-filter="special" data-val="tennis" onclick="toggleChip(this)">🎾 Tennis</button>
-        <button class="chip c-blue" data-filter="special" data-val="souscote" onclick="toggleChip(this)" title="Décrit comme sous-estimé/méconnu dans la note">💎 Sous-coté</button>
-        <button class="chip c-blue" data-filter="special" data-val="intime" onclick="toggleChip(this)" title="Décrit comme intime/discret/peu de riverains dans la note">🤍 Intime</button>
       </div>
     </div>
     <div class="filter-section">
@@ -643,27 +633,19 @@ function togglePwd() {
         <button class="view-btn active" onclick="setView('grid',this)">⊞ Grille</button>
         <button class="view-btn" onclick="setView('table',this)">☰ Tableau</button>
         <button class="view-btn" onclick="setView('map',this)">🗺 Carte</button>
-        <button class="view-btn" onclick="setView('nav',this)">🧭 Navigation</button>
         <button class="view-btn" onclick="setView('props',this)">🏡 Propriétés</button>
-      </div>
-      <div id="label-edit-controls" style="display:none;gap:8px;align-items:center;">
-        <button id="btn-edit-labels" onclick="toggleLabelEdit()" style="padding:10px 20px;border-radius:8px;border:2px solid var(--gold);background:var(--gold-dim);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">✏️ Repositionner étiquettes</button>
-        <button onclick="resetLabelPositions()" style="padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">↺ Réinitialiser</button>
       </div>
     </div>
 
     <!-- VUE GRILLE -->
     <div class="grid-view" id="grid-view"></div>
 
-    <!-- VUE NAVIGATION (3 colonnes) -->
-    <div class="nav-view" id="nav-view" style="display:none"></div>
-
     <!-- VUE TABLEAU -->
     <div class="table-wrap" id="table-view" style="display:none">
       <table>
         <thead><tr>
           <th>Lac</th><th>Catégorie</th><th>Eau</th><th>Baignade</th>
-          <th>Navigation</th><th>Tête</th><th>Problèmes</th><th title="Estimation interne, non basée sur des transactions vérifiées">Prix (est.)</th>
+          <th>Navigation</th><th>Tête</th><th>Problèmes</th><th>Prix</th>
           <th>Liquidité</th><th>Potentiel LT</th><th>Note courtier</th>
         </tr></thead>
         <tbody id="table-body"></tbody>
@@ -681,9 +663,22 @@ function togglePwd() {
         <span class="legend-item"><span class="legend-dot" style="background:#9b7fe8"></span>Niche</span>
         <span style="margin-left:auto;font-size:11px;color:var(--text-dim)">Cliquer sur un marqueur pour les détails</span>
       </div>
-      <div id="map-container"><svg id="label-lines" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:499;"></svg></div>
-      <div class="map-info">
-        <span>Les filtres actifs sont reflétés sur la carte. Les lacs exclus apparaissent en gris.</span>
+      <div style="position:relative;">
+        <div id="map-container"></div>
+        <div style="position:absolute;top:10px;right:10px;z-index:500;display:flex;flex-direction:column;gap:6px;pointer-events:auto;">
+          <button id="btn-edit-labels" onclick="toggleLabelEdit()" style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:10px;border:1px solid var(--gold);background:rgba(22,28,39,0.92);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(0,0,0,.5);">
+            <span>✏️</span><span id="btn-edit-label-text">Mode édition étiquettes</span>
+          </button>
+          <button id="btn-reset-labels" onclick="resetLabelPositions()" style="display:none;align-items:center;gap:7px;padding:7px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(22,28,39,0.92);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(0,0,0,.5);">
+            ↺ Réinitialiser
+          </button>
+          <div id="edit-mode-hint" style="display:none;padding:8px 12px;border-radius:8px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.6;max-width:200px;box-shadow:0 2px 12px rgba(0,0,0,.5);">
+            🖱 <b>Glisse</b> les étiquettes<br><span style="color:var(--text-muted);font-size:10px">Positions sauvegardées automatiquement</span>
+          </div>
+        </div>
+      </div>
+      <div class="map-info" style="font-size:11px;color:var(--text-dim);padding:6px 12px;">
+        Les lacs exclus par les filtres apparaissent en gris · Cliquer un marqueur pour la fiche
       </div>
     </div>
 
@@ -865,49 +860,43 @@ function togglePwd() {
 // DONNÉES LACS
 // ═══════════════════════════════════════════════
 const LACS=[
-  {lac:"Lac Lyster",cat:"top",eau:5,baignade:true,nav:"moteur",tete:true,problemes:"Faible",prix:"500K–1.2M$",prixMin:500,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Nature, quiétude absolue, long terme",note:"Moteur essence autorisé — vitesse limitée à 55 km/h hors zones réglementées, 10 km/h à 100 m de la rive et dans le secteur nord (Transport Canada). Offre quasi inexistante. Quand ça sort, ça part vite. Eau parmi les meilleures de l'Estrie.",lat:45.738,lng:-71.621},
-  {lac:"Lac Fraser",cat:"top",eau:5,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ EAE niveau rouge (3 espèces)",prix:"600K–1.5M$",prixMin:600,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Acheteur parc protégé, nature premium",note:"Moteur essence autorisé — vitesse limitée à 10 km/h sur l'ensemble du lac (Transport Canada). Parc des Appalaches. Réglementation stricte = protection naturelle. Espèces aquatiques envahissantes (EAE) : basculé au niveau rouge en 2026 (3 espèces détectées, source Le Reflet du Lac/CREE) — décontamination eau chaude haute pression obligatoire pour toute embarcation. Qualité de baignade de la plage néanmoins classée excellente par la SÉPAQ (2026). Valeur à très long terme.",lat:45.532,lng:-71.085},
+  {lac:"Lac Lyster",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:true,problemes:"Faible",prix:"500K–1.2M$",prixMin:500,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Nature, quiétude absolue, long terme",note:"Offre quasi inexistante. Quand ça sort, ça part vite. Eau parmi les meilleures de l'Estrie.",lat:45.738,lng:-71.621},
+  {lac:"Lac Fraser",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"600K–1.5M$",prixMin:600,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Acheteur parc protégé, nature premium",note:"Parc des Appalaches. Réglementation stricte = protection naturelle. Valeur à très long terme.",lat:45.532,lng:-71.085},
   {lac:"Lac Gilbert",cat:"top",eau:5,baignade:true,nav:"electrique",tete:true,problemes:"Faible",prix:"550K–1.3M$",prixMin:550,liq:"Faible",liqScore:2,lt:"Très élevé",ltScore:5,profil:"Discrétion, calme, bateaux tranquilles",note:"Lac méconnu = valeur sous-estimée. Électrique seulement = quiétude garantie.",lat:45.285,lng:-72.155},
-  {lac:"Lac Stukely",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"700K–2M$",prixMin:700,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Prestige nature, parc Orford",note:"Correction : la Sépaq confirme que TOUTES les embarcations à moteur (essence ET électrique) sont interdites dans le parc, pour contrer la propagation du myriophylle à épis — pas 'électrique seulement' comme précédemment indiqué. Parc Mont-Orford. Prix élevé mais justifié. Peu de transactions = stabilité de valeur. Plage du parc fermée temporairement en juin 2026 pour qualité de baignade impropre (bactéries) — rouverte depuis selon le programme Environnement-Plage de la SÉPAQ ; surveiller les avis saisonniers.",lat:45.323,lng:-72.213},
-  {lac:"Lac Massawippi",cat:"top",eau:5,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Moules zébrées",prix:"800K–3M$+",prixMin:800,liq:"Bonne",liqScore:4,lt:"Élevé",ltScore:4,profil:"Lifestyle moteur, prestige, Cantons-de-l'Est",note:"Le lac de prestige par excellence dans les Cantons. Moules zébrées surveillées mais stable. Attention : c'est la rivière Massawippi (pas le lac) qui est classée au niveau EAE rouge en 2026 (6 espèces, dont carpe commune et potamot crépu) — à ne pas confondre lors d'une discussion avec un client.",lat:45.216,lng:-72.000},
+  {lac:"Lac Stukely",cat:"top",eau:5,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"700K–2M$",prixMin:700,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Prestige nature, parc Orford",note:"Parc Mont-Orford. Prix élevé mais justifié. Peu de transactions = stabilité de valeur.",lat:45.323,lng:-72.213},
+  {lac:"Lac Massawippi",cat:"top",eau:5,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Moules zébrées",prix:"800K–3M$+",prixMin:800,liq:"Bonne",liqScore:4,lt:"Élevé",ltScore:4,profil:"Lifestyle moteur, prestige, Cantons-de-l'Est",note:"Le lac de prestige par excellence dans les Cantons. Moules zébrées surveillées mais stable.",lat:45.216,lng:-72.000},
   {lac:"Lac Memphrémagog",cat:"top",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Moules zébrées",prix:"500K–4M$+",prixMin:500,liq:"Bonne",liqScore:4,lt:"Élevé",ltScore:4,profil:"Lifestyle complet, secteurs Magog/Georgeville",note:"Secteurs variables: Georgeville = premium, Sud Magog = populaire. Micro-localisation impérative.",lat:45.143,lng:-72.269},
-  {lac:"Lac Mégantic",cat:"top",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"Faible",prix:"300K–900K$",prixMin:300,liq:"Moyenne",liqScore:3,lt:"Élevé",ltScore:4,profil:"Bon prix pour propriété motorisée, région Mégantic",note:"Données 2023 : qualité d'eau nuancée selon la station — une station en transition méso-eutrophe (2,8 m de transparence), une autre mésotrophe. Bonne mais pas 'top' partout, à documenter par secteur. Marché moins cher que Cantons classiques. Éloignement Sherbrooke = frein liquidité.",lat:45.514,lng:-70.878},
-  {lac:"Lac d'Argent",cat:"top",eau:5,baignade:true,nav:"electrique",tete:false,problemes:"⚠️ Myriophylle à épis",prix:"600K–1.5M$",prixMin:600,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Exclusivité, secteur Orford, discrétion",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Myriophylle à épis confirmé — les résidents ont déployé une installation de contrôle pour tenter de contenir la propagation (Eastman). Rare, peu de riverains = intimité maximale. Bonne protection long terme.",lat:45.348,lng:-72.196},
-  {lac:"Lac Lovering",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Risque partiel",prix:"350K–800K$",prixMin:350,liq:"Moyenne",liqScore:3,lt:"Moyen–élevé",ltScore:3.5,profil:"Famille, budget intermédiaire, région Orford",note:"Moteur essence autorisé (correction : le lac n'est pas non motorisé), mais encadré — vitesse limitée à 10 km/h à 100 m ou moins de la rive, 70 km/h au large. La Société de conservation du lac Lovering organise des activités périodiques sans moteur (heures/journées sans moteur). Bon compromis. Vérifier secteur précis. Offre plus abondante = plus négociable.",lat:45.248,lng:-72.201},
-  {lac:"Lac Brome",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ État mésotrophe",prix:"400K–1.2M$",prixMin:400,liq:"Bonne",liqScore:4,lt:"Moyen",ltScore:3,profil:"Lifestyle accessible, Knowlton, famille",note:"Moteur essence autorisé — seule une bande de 150 m de rive est limitée à 10 km/h, le reste du lac (12 km²) n'est pas restreint (Transport Canada). Suivi officiel 2025 : état mésotrophe, phosphore moyen 16 µg/L, chlorophylle-a 6,2 µg/L — enrichissement nutritif à surveiller, mesures de limitation des apports recommandées. Popularité = bon marché. Urbanisation croissante.",lat:45.194,lng:-72.612},
-  {lac:"Lac Bowker",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ EAE niveau rouge (1 espèce)",prix:"300K–700K$",prixMin:300,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Calme, famille, budget raisonnable",note:"Moteur essence autorisé — 55 km/h hors zones, 10 km/h dans la baie et à 75 m de la rive (Transport Canada). Source d'eau potable importante : alimente l'aqueduc régional de 5 municipalités (Valcourt, Canton de Valcourt, Racine, Bonsecours, Lawrenceville) — eau puisée à 13 m de profondeur. Nouvellement classé EAE niveau rouge en 2026 (1 espèce détectée). Peu connu, peu de transactions.",lat:45.380,lng:-71.972},
-  {lac:"Lac Simoneau",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:"partial",problemes:"⚠️ EAE niveau rouge (2 espèces)",prix:"250K–600K$",prixMin:250,liq:"Très faible",liqScore:1,lt:"Moyen",ltScore:3,profil:"Nature tranquille, acquéreur patient",note:"Classé EAE niveau rouge en 2026 (2 espèces détectées, basculé de jaune à rouge). Tête partiellement accessible. Moteurs essence acceptés, vitesse limitée à 10 km/h à moins de 30 m de la berge et 40 km/h ailleurs (Transport Canada). Accès public par descente de bateau à clé (Canton d'Orford). Faible volume = long terme uniquement.",lat:45.416,lng:-72.048},
-  {lac:"Lac Leclerc",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:"partial",problemes:"⚠️ EAE niveau rouge (2 espèces)",prix:"250K–600K$",prixMin:250,liq:"Très faible",liqScore:1,lt:"Moyen–élevé",ltScore:3.5,profil:"Niche nature, valeur cachée, patient",note:"Moteur essence autorisé, vitesse limitée à 10 km/h sur l'ensemble du lac (Transport Canada). Classé EAE niveau rouge en 2026 (2 espèces détectées, basculé de jaune à rouge). Sous-estimé. Tête partielle. Clientèle niche = vente parfois longue.",lat:45.442,lng:-71.825},
+  {lac:"Lac Mégantic",cat:"top",eau:5,baignade:true,nav:"moteur",tete:false,problemes:"Faible",prix:"300K–900K$",prixMin:300,liq:"Moyenne",liqScore:3,lt:"Élevé",ltScore:4,profil:"Bon prix pour propriété motorisée, région Mégantic",note:"Marché moins cher que Cantons classiques. Éloignement Sherbrooke = frein liquidité mais eau top.",lat:45.514,lng:-70.878},
+  {lac:"Lac d'Argent",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"600K–1.5M$",prixMin:600,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Exclusivité, secteur Orford, discrétion",note:"Rare, peu de riverains = intimité maximale. Bonne protection long terme.",lat:45.348,lng:-72.196},
+  {lac:"Lac Lovering",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Risque partiel",prix:"350K–800K$",prixMin:350,liq:"Moyenne",liqScore:3,lt:"Moyen–élevé",ltScore:3.5,profil:"Famille, budget intermédiaire, région Orford",note:"Moteur permis (wakeboats documentés). Rampe mise à l'eau. Distance 250m rives recommandée. Vérifier secteur précis. Offre abondante = négociable.",lat:45.248,lng:-72.201},
+  {lac:"Lac Brome",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Algues + myriophylle (jaune)",prix:"400K–1.2M$",prixMin:400,liq:"Bonne",liqScore:4,lt:"Moyen",ltScore:3,profil:"Lifestyle accessible, Knowlton, famille",note:"Moteur permis. Marina Knowlton + rampe. 1500+ embarcations/an. Vignette obligatoire (2026-2027). Station lavage requise. Algues + myriophylle à surveiller.",lat:45.194,lng:-72.612},
+  {lac:"Lac Bowker",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"300K–700K$",prixMin:300,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Calme, famille, budget raisonnable",note:"Peu connu, peu de transactions. Eau correcte.",lat:45.380,lng:-71.972},
+  {lac:"Lac Simoneau",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:"partial",problemes:"Faible",prix:"250K–600K$",prixMin:250,liq:"Très faible",liqScore:1,lt:"Moyen",ltScore:3,profil:"Nature tranquille, acquéreur patient",note:"Tête partiellement accessible. Eau stable. Faible volume = long terme uniquement.",lat:45.416,lng:-72.048},
+  {lac:"Lac Leclerc",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:"partial",problemes:"Faible",prix:"250K–600K$",prixMin:250,liq:"Très faible",liqScore:1,lt:"Moyen–élevé",ltScore:3.5,profil:"Niche nature, valeur cachée, patient",note:"Sous-estimé. Eau propre. Tête partielle. Clientèle niche = vente parfois longue.",lat:45.442,lng:-71.825},
   {lac:"Lac Montjoie",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"300K–700K$",prixMin:300,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Calme, famille, nature",note:"Lac tranquille, peu de données marché. Stabilité mais liquidité faible.",lat:45.356,lng:-72.024},
-  {lac:"Lac des Monts",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ EAE niveau rouge (2 espèces)",prix:"250K–600K$",prixMin:250,liq:"Très faible",liqScore:1,lt:"Moyen–élevé",ltScore:3.5,profil:"Nature forte, isolement, budget intermédiaire",note:"Moteur essence autorisé — 10 km/h à 30 m de la berge, 40 km/h ailleurs (Transport Canada). Classé EAE niveau rouge en 2026 (2 espèces détectées, basculé de jaune à rouge). Beau potentiel caché. Peu de ventes = estimation complexe.",lat:45.462,lng:-72.127},
-  {lac:"Lac des Sitelles",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"250K–550K$",prixMin:250,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Tranquillité, famille, nature",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Discret, stable. Faible liquidité. Marché limité.",lat:45.292,lng:-72.178},
-  {lac:"Lac Aylmer",cat:"warn",eau:2,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Qualité inégale selon station",prix:"200K–600K$",prixMin:200,liq:"Moyenne",liqScore:3,lt:"Variable",ltScore:2.5,profil:"Retraité région, budget serré, accepte risques",note:"Données 2025 : forte disparité selon les stations de suivi — une station en transition méso-eutrophe, une autre carrément eutrophe avec seulement 1,7 m de transparence. Qualité d'eau inégale confirmée mais à documenter précisément par secteur avant offre. Micro-localisation critique. Analyser DDV + tests eau.",lat:45.733,lng:-71.488},
+  {lac:"Lac des Monts",cat:"mid",eau:4,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"250K–600K$",prixMin:250,liq:"Très faible",liqScore:1,lt:"Moyen–élevé",ltScore:3.5,profil:"Nature forte, isolement, budget intermédiaire",note:"Beau potentiel caché. Peu de ventes = estimation complexe.",lat:45.462,lng:-72.127},
+  {lac:"Lac des Sitelles",cat:"mid",eau:4,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"250K–550K$",prixMin:250,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Tranquillité, famille, nature",note:"Discret, stable. Faible liquidité. Marché limité.",lat:45.292,lng:-72.178},
+  {lac:"Lac Aylmer",cat:"warn",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Apports agricoles",prix:"200K–600K$",prixMin:200,liq:"Moyenne",liqScore:3,lt:"Variable",ltScore:2.5,profil:"Retraité région, budget serré, accepte risques",note:"Qualité d'eau inégale selon secteur. Micro-localisation critique. Analyser DDV + tests eau.",lat:45.733,lng:-71.488},
   {lac:"Lac Elgin",cat:"warn",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Connecté (chaîne)",prix:"180K–500K$",prixMin:180,liq:"Moyenne",liqScore:3,lt:"Variable",ltScore:2.5,profil:"Budget bas, accepte contraintes",note:"Qualité dépend de l'amont. Lac en chaîne = vulnérable aux pollutions extérieures.",lat:45.502,lng:-71.241},
-  {lac:"Lac Louise",cat:"warn",eau:4,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Connecté (chaîne)",prix:"180K–500K$",prixMin:180,liq:"Moyenne",liqScore:3,lt:"Variable",ltScore:2.5,profil:"Budget bas, accepte contraintes, eau de bonne qualité",note:"Données 2025 : état oligotrophe, phosphore 5,9 µg/L, chlorophylle-a 1,5 µg/L — eau plutôt bonne malgré le profil budget. Lac en chaîne = vulnérable aux pollutions extérieures en amont.",lat:45.488,lng:-71.262},
-  {lac:"Lac Brompton",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ EAE niveau rouge (5 espèces)",prix:"250K–800K$",prixMin:250,liq:"Bonne",liqScore:4,lt:"Moyen",ltScore:3,profil:"Lifestyle moteur, Sherbrooke proche, budget varié",note:"Classé EAE niveau rouge en 2026 — le plus contaminé de la liste locale (5 espèces envahissantes détectées), décontamination eau chaude haute pression obligatoire pour toute embarcation entrante. Par ailleurs, données 2025 sur la chimie de l'eau : phosphore 5,1 µg/L, état oligotrophe selon le ministère malgré une transparence moyenne de 3,7 m (bon sur ce plan, distinct du statut EAE). Proximité Sherbrooke = avantage. Marché actif.",lat:45.498,lng:-71.952},
-  {lac:"Petit Lac Brompton",cat:"mid",eau:4,baignade:true,nav:"moteur",tete:false,problemes:"Faible",prix:"200K–600K$",prixMin:200,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Budget intermédiaire, proche Brompton, eau de bonne qualité",note:"Données 2025 : transparence 4,8 m, phosphore 7,6 µg/L, transition oligo-mésotrophe — probablement sous-estimé par l'ancienne mention 'fragile', qui était trop négative sans nuance. Analyse terrain requise.",lat:45.512,lng:-71.938},
-  {lac:"Petit Lac Magog",cat:"bad",eau:2,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Milieu urbain",prix:"150K–400K$",prixMin:150,liq:"Faible",liqScore:2,lt:"Faible",ltScore:2,profil:"Valeur pas liée à l'eau",note:"Moteur essence autorisé — relié au système du Lac Magog où la navigation motorisée est courante. Pas un vrai lac de villégiature. Ne pas vendre comme 'lac'.",lat:45.358,lng:-72.144},
-  {lac:"Lac Bran-de-Scie",cat:"bad",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Fragile/petit + EAE rouge (2 esp.)",prix:"150K–400K$",prixMin:150,liq:"Très faible",liqScore:1,lt:"Faible",ltScore:2,profil:"Risqué, analyse obligatoire",note:"Moteur essence autorisé — 10 km/h à 30 m de la berge, 40 km/h ailleurs (Transport Canada). Petit lac fragile, classé EAE niveau rouge en 2026 (2 espèces détectées). Risque de dégradation. Peu de transactions.",lat:45.332,lng:-72.162},
+  {lac:"Lac Louise",cat:"warn",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Connecté (chaîne)",prix:"180K–500K$",prixMin:180,liq:"Moyenne",liqScore:3,lt:"Variable",ltScore:2.5,profil:"Budget bas, accepte contraintes",note:"Même profil que Lac Elgin. Chaîne hydro = risque partagé.",lat:45.488,lng:-71.262},
+  {lac:"Lac Brompton",cat:"warn",eau:3,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Variable selon rive",prix:"250K–800K$",prixMin:250,liq:"Bonne",liqScore:4,lt:"Moyen",ltScore:3,profil:"Lifestyle moteur, Sherbrooke proche, budget varié",note:"Proximité Sherbrooke = avantage. Qualité variable selon rive. Marché actif.",lat:45.498,lng:-71.952},
+  {lac:"Petit Lac Brompton",cat:"warn",eau:3,baignade:true,nav:"moteur",tete:false,problemes:"⚠️ Fragile",prix:"200K–600K$",prixMin:200,liq:"Faible",liqScore:2,lt:"Variable",ltScore:2.5,profil:"Budget intermédiaire, proche Brompton",note:"Petit lac plus fragile. Analyse terrain requise.",lat:45.512,lng:-71.938},
+  {lac:"Petit Lac Magog",cat:"bad",eau:2,baignade:false,nav:"nonmotorise",tete:false,problemes:"⚠️ Milieu urbain",prix:"150K–400K$",prixMin:150,liq:"Faible",liqScore:2,lt:"Faible",ltScore:2,profil:"Valeur pas liée à l'eau",note:"Pas un vrai lac de villégiature. Ne pas vendre comme 'lac'.",lat:45.358,lng:-72.144},
+  {lac:"Lac Bran-de-Scie",cat:"bad",eau:3,baignade:false,nav:"nonmotorise",tete:false,problemes:"⚠️ Fragile/petit",prix:"150K–400K$",prixMin:150,liq:"Très faible",liqScore:1,lt:"Faible",ltScore:2,profil:"Risqué, analyse obligatoire",note:"Petit lac fragile. Risque de dégradation. Peu de transactions.",lat:45.332,lng:-72.162},
   {lac:"Étang aux Cerises",cat:"niche",eau:4,baignade:false,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"200K–500K$",prixMin:200,liq:"Très faible",liqScore:1,lt:"Stable (niche)",ltScore:2.5,profil:"Écologie, faune, pêche, pas baignade",note:"Propriété écologique. Clientèle très niche.",lat:45.312,lng:-72.305},
-  {lac:"Lac Webster",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"400K–1.1M$",prixMin:400,liq:"Faible",liqScore:2,lt:"Moyen–élevé",ltScore:3.5,profil:"Famille, nature, secteur Austin/Eastman, domaine privé géré",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Domaine privé géré par le RDLW (OBNL) — vérifier les règlements du domaine avant offre. Secteur Eastman/Austin = fort attrait lifestyle. Eau de bonne qualité selon suivi municipal 2018. Bon potentiel LT grâce à la gestion collective du lac.",lat:45.302,lng:-72.327},
-  {lac:"Lac Desmarais",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"⚠️ Lac prioritaire MELCC",prix:"280K–650K$",prixMin:280,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Famille, nature, secteur Saint-Denis-de-Brompton, budget intermédiaire",note:"Règlement confirmé par l'Association pour la préservation du lac Desmarais : moteurs essence interdits, moteurs électriques autorisés jusqu'à 80 lb de poussée / 2 HP maximum (droits acquis pour certaines embarcations antérieures aux règles de 2017) — un des statuts de navigation les mieux documentés du secteur. Classé lac prioritaire par le MELCC (bassin versant Saint-François) — suivi qualité eau actif. Secteur Val-Saint-François, moins coté que Memphrémagog mais bon potentiel tranquille. Proximité Sherbrooke.",lat:45.4617,lng:-72.1189},
-  {lac:"Lac Brais",cat:"warn",eau:2,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Méso-eutrophe / algues",prix:"180K–480K$",prixMin:180,liq:"Faible",liqScore:2,lt:"Variable",ltScore:2.5,profil:"Budget bas, accepte contraintes qualité eau, secteur Valcourt",note:"⚠️ Navigation (moteur essence) non confirmée par un règlement officiel trouvé — le lac fait 49 ha selon les documents gouvernementaux liés au projet d'agrandissement du parc du Mont-Orford, mais aucune source claire n'interdit l'essence ni ne limite à l'électrique ; à valider avant d'affirmer le statut à un client. Attention à ne pas confondre avec d'autres lacs Brais au Québec. RSVL 2023 : état méso-eutrophe avancé — eau trouble (transparence 2,5 m), phosphore élevé (22 µg/l), biomasse algues élevée. MELCCFP recommande mesures correctives. Baignade déconseillée en période de chaleur. Valeur immobilière présente mais ne pas vendre sur la qualité de l'eau. Secteur Val-Saint-François, moins prisé. Analyser DDV et tests eau systématiquement.",lat:45.458,lng:-72.198},
-  {lac:"Lac Orford",cat:"top",eau:5,baignade:true,nav:"moteur",tete:true,problemes:"⚠️ Vitesse zonée (5/10/70 km/h)",prix:"600K–1.8M$",prixMin:600,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Premium nature, plongée, vue Mont-Orford, clientèle haut de gamme Eastman/Austin",note:"Moteur essence autorisé, réglementation fédérale par zones de vitesse — 5, 10 et 70 km/h (demandée par Austin et Eastman), applicable aux embarcations à propulsion mécanique et électrique. L'APELOR fait la promotion du respect de ces limites. Eau cristalline et très profonde — 4 sites de plongée reconnus (20 à 100 pieds). Bassin versant de 8,3 km² sur le versant sud-ouest du mont Orford. Source d'eau potable d'Eastman = protection maximale assurée. APELOR (200+ membres) veille à la qualité depuis 1999. Lac de tête du bassin Missisquoi, se déverse vers le Lac d'Argent. Phosphore faible en 2023 (11,4 µg/L) — chiffre à confirmer via la fiche officielle. Très peu de transactions.",lat:45.328,lng:-72.238},
-  {lac:"Lac Parker",cat:"top",eau:5,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"550K–1.5M$",prixMin:550,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Nature haut de gamme, projet Boisé du Lac Parker, clientèle éco-consciente, Eastman",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Projet immobilier premium 'Boisé du Lac Parker' confirmé — terrains ceinturés d'aires protégées et zones de conservation permanentes. Un accès municipal au lac existe pour certaines propriétés, mais attention : ne pas présumer que tous les terrains sont riverains ou bénéficient d'un accès privé au lac — à vérifier lot par lot avant offre. Règlement de promoteur obligatoire à vérifier. Proximité Lac d'Argent et parc Mont-Orford. 1h Montréal (A-10 sortie 106). RE/MAX D'Abord est la référence sur ce secteur.",lat:45.318,lng:-72.310},
-  {lac:"Lac Nick",cat:"top",eau:5,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"450K–1.3M$",prixMin:450,liq:"Faible",liqScore:2,lt:"Très élevé",ltScore:5,profil:"Nature premium, discrétion, clientèle Montréal (1h15), secteur Bolton-Est/Austin",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada, confirmé). Association de propriétaires active, gère notamment les embarcations. Qualité d'eau réputée bonne. Secteur Bolton-Est très prisé, à 10 min d'Eastman, 20 min Magog, 22 min Owl's Head. Marché actif sur le Chemin du Lac-Nick (RE/MAX D'Abord présent). Peu de riverains = intimité recherchée.",lat:45.220,lng:-72.323},
-  {lac:"Lac Libby",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"⚠️ Camping riverain",prix:"350K–950K$",prixMin:350,liq:"Faible",liqScore:2,lt:"Moyen–élevé",ltScore:3.5,profil:"Nature 4 saisons, famille, clientèle Montréal (1h), secteur St-Étienne-de-Bolton",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada) — baignade agréable, eau de bonne qualité, lac peu profond. Camping 4 étoiles Domaine du Lac Libby confirmé sur les rives (à vérifier selon secteur de la propriété — certains riverains ont intimité totale, d'autres plus exposés). 1h Montréal, proche A-10 sortie 100. Marché actif via DuProprio et Centris.",lat:45.278,lng:-72.375},
-  {lac:"Long Pond",cat:"top",eau:5,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"450K–1.2M$",prixMin:450,liq:"Faible",liqScore:2,lt:"Très élevé",ltScore:5,profil:"Nature premium, famille, clientèle Montréal (1h), domaine privé résidentiel",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Aussi appelé 'Lac Long' en français (même lac — voir laclong-estrie.ca), 2,5 km de long, situé à Bolton-Est, se déverse vers Trousers Pond. Projet résidentiel 'Le Havre du Lac Long' confirmé (14 terrains, env. 3 acres chacun) — accès plage privée aménagée (150 pieds selon une source, jusqu'à 1200 pieds selon une autre — longueur exacte à confirmer, possiblement plusieurs accès/développements sur le même lac). 5 min Eastman, 10 min Magog, 3 km Spa Bolton, proche A-10 sortie 106. Voisinage exclusif et peu dense. Vérifier règlement de promoteur si terrain dans le projet.",lat:45.255,lng:-72.358},
-  {lac:"Trousers Pond",cat:"top",eau:5,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"400K–1.1M$",prixMin:400,liq:"Faible",liqScore:2,lt:"Très élevé",ltScore:5,profil:"Nature, calme absolu, vue Mont-Orford, clientèle Montréal (1h)",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Plage de sable naturelle, eau limpide, vue sur le Mont Orford. 7 min A-10 sortie 106, 20 min Magog, 15 min Mont-Orford. Secteur Bolton-Est très prisé. Peu de riverains = intimité maximale. Bon potentiel de valeur long terme.",lat:45.240,lng:-72.348},
-  {lac:"Sugar Loaf Pond",cat:"mid",eau:4,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"300K–800K$",prixMin:300,liq:"Très faible",liqScore:1,lt:"Élevé",ltScore:4,profil:"Nature, discrétion, secteur Bolton-Est / Potton, clientèle Montréal",note:"Confirmé par une fiche immobilière décrivant ce lac comme un 'private ecological lake' où les bateaux à moteur sont interdits (aucun moteur, essence ou électrique) — activités nautiques non motorisées seulement (canot/kayak/paddle/pédalo). Secteur Potton / Bolton-Est, proche South Bolton et Saint-Benoît-du-Lac. Très peu de transactions = données de marché limitées. Estimation difficile — analyser au cas par cas. Proximité Owl's Head et Memphrémagog = attrait régional fort. 'Chemin de Sugar Loaf Pond' dans Bolton-Est confirme présence riveraine.",lat:45.125,lng:-72.336},
-  {lac:"Lac Larouche",cat:"niche",eau:5,baignade:false,nav:"moteur",tete:true,problemes:"Faible",prix:"N/A — pas de riverains",prixMin:0,liq:"N/A",liqScore:0,lt:"N/A",ltScore:0,profil:"Randonneurs, grimpeurs, amateurs de panoramas — pas de villégiature riveraine",note:"Nom officiel selon la Commission de toponymie : Lac La Rouche (Racine, Val-Saint-François) — à ne pas confondre avec le lac Larouche de la réserve faunique La Vérendrye (autre lac, essence/électrique/propane explicitement autorisés). Navigation : les audiences du BAPE font état de motomarines à essence présentes sur le lac, mais aucun règlement officiel clair (essence interdite ou électrique seulement) n'a été trouvé — à confirmer localement avant d'affirmer un statut. Lac de montagne avec falaises rocheuses. Site d'escalade rocheux reconnu. Point d'observation panoramique sur les Cantons-de-l'Est accessible par sentier (~15 min). Aucune propriété riveraine à vendre — ce n'est pas un lac de villégiature. Valeur immobilière = propriétés environnantes sur lacs voisins (Lac Miller, etc.) qui se vendent sur la proximité des sentiers et du belvédère.",lat:45.442,lng:-72.298},
-  {lac:"Étang O'Malley",cat:"bad",eau:2,baignade:false,nav:"electrique",tete:false,problemes:"⚠️ Stagnant",prix:"100K–300K$",prixMin:100,liq:"Très faible",liqScore:1,lt:"Très faible",ltScore:1,profil:"À éviter pour villégiature eau",note:"Moteur électrique ≤7,5kW autorisé, essence interdit (Transport Canada). Étang stagnant. Pas comparable à un lac.",lat:45.268,lng:-72.152},
+  {lac:"Lac Webster",cat:"mid",eau:4,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"400K–1.1M$",prixMin:400,liq:"Faible",liqScore:2,lt:"Moyen–élevé",ltScore:3.5,profil:"Famille, nature, secteur Austin/Eastman, domaine privé géré",note:"Domaine privé géré par le RDLW (OBNL) — vérifier les règlements du domaine avant offre. Secteur Eastman/Austin = fort attrait lifestyle. Eau de bonne qualité selon suivi municipal 2018. Non motorisé = tranquillité garantie. Bon potentiel LT grâce à la gestion collective du lac.",lat:45.302,lng:-72.327},
+  {lac:"Lac Desmarais",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"⚠️ Lac prioritaire MELCC",prix:"280K–650K$",prixMin:280,liq:"Faible",liqScore:2,lt:"Moyen",ltScore:3,profil:"Famille, nature, secteur Saint-Denis-de-Brompton, budget intermédiaire",note:"Classé lac prioritaire par le MELCC (bassin versant Saint-François) — suivi qualité eau actif. Secteur Val-Saint-François, moins coté que Memphrémagog mais bon potentiel tranquille. Vérifier résultats de suivi les plus récents avant offre. Électrique seulement = calme garanti. Proximité Sherbrooke.",lat:45.4617,lng:-72.1189},
+  {lac:"Lac Brais",cat:"warn",eau:2,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Méso-eutrophe / algues",prix:"180K–480K$",prixMin:180,liq:"Faible",liqScore:2,lt:"Variable",ltScore:2.5,profil:"Budget bas, accepte contraintes qualité eau, secteur Valcourt",note:"RSVL 2023 : état méso-eutrophe avancé — eau trouble (transparence 2,5 m), phosphore élevé (22 µg/l), biomasse algues élevée. MELCCFP recommande mesures correctives. Baignade déconseillée en période de chaleur. Valeur immobilière présente mais ne pas vendre sur la qualité de l'eau. Secteur Val-Saint-François, moins prisé. Analyser DDV et tests eau systématiquement.",lat:45.458,lng:-72.198},
+  {lac:"Lac Orford",cat:"top",eau:5,baignade:true,nav:"electrique",tete:true,problemes:"Faible",prix:"600K–1.8M$",prixMin:600,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Premium nature, plongée, vue Mont-Orford, clientèle haut de gamme Eastman/Austin",note:"Eau cristalline et très profonde — 4 sites de plongée reconnus (20 à 100 pieds). Source d'eau potable d'Eastman = protection maximale assurée. APELOR (200+ membres) veille à la qualité depuis 1999. Électrique uniquement, restrictions de vitesse. Lac de tête du bassin Missisquoi. Se déverse vers le Lac d'Argent. Phosphore faible en 2023 (11,4 µg/L). Très peu de transactions — l'un des lacs les plus prisés de la région.",lat:45.328,lng:-72.238},
+  {lac:"Lac Parker",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"550K–1.5M$",prixMin:550,liq:"Très faible",liqScore:1,lt:"Très élevé",ltScore:5,profil:"Nature haut de gamme, projet Boisé du Lac Parker, clientèle éco-consciente, Eastman",note:"Projet immobilier premium 'Boisé du Lac Parker' — terrains ceinturés d'aires protégées et zones de conservation permanentes. Accès au lac via aménagement municipal. Règlement de promoteur obligatoire à vérifier avant offre. Proximitié Lac d'Argent et parc Mont-Orford. 1h Montréal (A-10 sortie 106). Eau de qualité, milieu naturel exceptionnel. RE/MAX D'Abord est la référence sur ce secteur.",lat:45.318,lng:-72.310},
+  {lac:"Lac Nick",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"450K–1.3M$",prixMin:450,liq:"Faible",liqScore:2,lt:"Très élevé",ltScore:5,profil:"Nature premium, discrétion, clientèle Montréal (1h15), secteur Bolton-Est/Austin",note:"Lac sans moteur à essence = calme absolu. Qualité d'eau réputée exceptionnelle. Secteur Bolton-Est très prisé, à 10 min d'Eastman, 20 min Magog, 22 min Owl's Head. Marché actif sur le Chemin du Lac-Nick (RE/MAX D'Abord présent). Belles valeurs de revente. Voisinage de villégiature de prestige selon inscriptions Centris. Peu de riverains = intimité recherchée.",lat:45.220,lng:-72.323},
+  {lac:"Lac Libby",cat:"mid",eau:4,baignade:true,nav:"nonmotorise",tete:false,problemes:"⚠️ Camping riverain",prix:"350K–950K$",prixMin:350,liq:"Faible",liqScore:2,lt:"Moyen–élevé",ltScore:3.5,profil:"Nature 4 saisons, famille, clientèle Montréal (1h), secteur St-Étienne-de-Bolton",note:"Lac écologique sans moteur à essence — baignade agréable, eau de bonne qualité, lac peu profond. Point à mentionner : camping 4 étoiles Domaine du Lac Libby présent sur les rives (à vérifier selon secteur de la propriété — certains riverains ont intimité totale, d'autres plus exposés). Location court terme permise par la Ville = potentiel revenu Airbnb. 1h Montréal, proche A-10 sortie 100. Marché actif via DuProprio et Centris.",lat:45.278,lng:-72.375},
+  {lac:"Long Pond",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"450K–1.2M$",prixMin:450,liq:"Faible",liqScore:2,lt:"Très élevé",ltScore:5,profil:"Nature premium, famille, clientèle Montréal (1h), domaine privé résidentiel",note:"Lac écologique sans moteur à essence, 2,5 km de long. Projet résidentiel 'Le Havre du Lac Long' (14 terrains seulement, env. 3 acres chacun) — accès plage privée 150 pieds aménagée. 5 min Eastman, 10 min Magog, 3 km Spa Bolton, proche A-10 sortie 106. Voisinage exclusif et peu dense. Eau de qualité, calme garanti. Vérifier règlement de promoteur si terrain dans le projet.",lat:45.255,lng:-72.358},
+  {lac:"Trousers Pond",cat:"top",eau:5,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"400K–1.1M$",prixMin:400,liq:"Faible",liqScore:2,lt:"Très élevé",ltScore:5,profil:"Nature, calme absolu, vue Mont-Orford, clientèle Montréal (1h)",note:"Lac écologique sans moteur à essence. Plage de sable naturelle, eau limpide, vue sur le Mont Orford. 7 min A-10 sortie 106, 20 min Magog, 15 min Mont-Orford. Secteur Bolton-Est très prisé. Peu de riverains = intimité maximale. Bon potentiel de valeur long terme.",lat:45.240,lng:-72.348},
+  {lac:"Sugar Loaf Pond",cat:"mid",eau:4,baignade:true,nav:"nonmotorise",tete:false,problemes:"Faible",prix:"300K–800K$",prixMin:300,liq:"Très faible",liqScore:1,lt:"Élevé",ltScore:4,profil:"Nature, discrétion, secteur Bolton-Est / Potton, clientèle Montréal",note:"Secteur Potton / Bolton-Est, proche South Bolton et Saint-Benoît-du-Lac. Lac tranquille sans moteur à essence. Très peu de transactions = données de marché limitées. Estimation difficile — analyser au cas par cas. Proximité Owl's Head et Memphrémagog = attrait régional fort. 'Chemin de Sugar Loaf Pond' dans Bolton-Est confirme présence riveraine.",lat:45.125,lng:-72.336},
+  {lac:"Lac Larouche",cat:"niche",eau:5,baignade:false,nav:"nonmotorise",tete:true,problemes:"Faible",prix:"N/A — pas de riverains",prixMin:0,liq:"N/A",liqScore:0,lt:"N/A",ltScore:0,profil:"Randonneurs, grimpeurs, amateurs de panoramas — pas de villégiature riveraine",note:"Lac de montagne avec falaises rocheuses dans le Val-Saint-François (secteur Racine). Site d'escalade rocheux reconnu. Point d'observation panoramique sur les Cantons-de-l'Est accessible par sentier (~15 min). Aucune propriété riveraine à vendre — ce n'est pas un lac de villégiature. Valeur immobilière = propriétés environnantes sur lacs voisins (Lac Miller, etc.) qui se vendent sur la proximité des sentiers et du belvédère.",lat:45.442,lng:-72.298},
+  {lac:"Étang O'Malley",cat:"bad",eau:2,baignade:false,nav:"nonmotorise",tete:false,problemes:"⚠️ Stagnant",prix:"100K–300K$",prixMin:100,liq:"Très faible",liqScore:1,lt:"Très faible",ltScore:1,profil:"À éviter pour villégiature eau",note:"Étang stagnant. Pas comparable à un lac.",lat:45.268,lng:-72.152},
   {lac:"Lac à la Truite",cat:"warn",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"⚠️ Accès restreint",prix:"350K–900K$",prixMin:350,liq:"Très faible",liqScore:1,lt:"Moyen–élevé",ltScore:3.5,profil:"Acheteur averti, due diligence accès obligatoire, nature",note:"Lac écologique Orford — aucun accès public. Droits d'accès par servitude seulement : vérifier l'acte de vente et le titre avant toute offre. Côté ouest protégé à perpétuité. Eau de bonne qualité, électrique seulement. Peu de transactions = estimation difficile. À analyser au cas par cas.",lat:45.315,lng:-72.195},
-  {lac:"Lac Waterloo",cat:"warn",eau:3,baignade:false,nav:"moteur",tete:false,problemes:"⚠️ Myriophylle à épis (plante envahissante)",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"À valider selon secteur riverain",note:"Lac urbain de la ville de Waterloo. Rampe de mise à l'eau réservée aux résidents de Waterloo et Shefford. Vitesse officiellement limitée à 10 km/h. Mesures de contrôle du myriophylle à épis en place. Baignade non aménagée au Parc du Lac Waterloo (pas de sauveteur, naturalisation des rives). Vérifier secteur précis, accès riverain et données de vente avant offre.",lat:45.3435,lng:-72.5155,activites:["paddle","jeux"]},
-  {lac:"Lac Malaga",cat:"mid",eau:4,baignade:true,nav:"electrique",tete:false,problemes:"Faible",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"Nature, calme garanti, secteur Austin, clientèle Montréal",note:"Association communautaire du Lac Malaga (ACLM) active — propulsion mécanique interdite, seuls les moteurs électriques faible puissance tolérés (max 0,7 kW, 7 km/h) = calme absolu. Suivi RSVL 2023 : eau de bonne qualité, légèrement enrichie en phosphore (7,8 µg/L), tests bactériologiques réguliers pour la baignade. Secteur Austin, à 8 km au sud, proche Eastman/Magog. Vérifier données de vente et règlement de l'association avant offre.",lat:45.2516,lng:-72.2585,activites:["paddle"]},
-  {lac:"Lac Miller",cat:"warn",eau:3,baignade:true,nav:"electrique",tete:false,problemes:"⚠️ Santé du lac en déclin",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"Nature, tranquillité, secteur Racine/Val-Saint-François",note:"Correction : une fiche immobilière récente confirme explicitement 'plan d'eau protégé où seuls les bateaux à moteur électrique, les pédalos et les chaloupes sont permis' — moteurs essence interdits (pas 'non motorisé' comme précédemment indiqué ; à confirmer par le règlement complet de l'association). Association des propriétaires du lac Miller active (~100 riverains). Rapport d'évaluation 2022 : signes préoccupants, santé du lac en déclin graduel — à valider avant offre. Bonne baignade près des rives, quai, kayak/canot/pédalo sur place. Proche sentiers de l'Estrie (rando, raquette) et sentiers VTT/motoneige.",lat:45.503,lng:-72.248},
-  {lac:"Lac Brousseau",cat:"warn",eau:3,baignade:true,nav:"nonmotorise",tete:false,problemes:"À valider",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"À valider selon secteur riverain",note:"Petit lac (14,1 ha) à Stukely-Sud, 2,5 km au nord-ouest du village, 3,5 km à l'est de Frost Village. Se déverse dans le ruisseau Quilliams. Absent des annexes 2026 de Transports Canada (restrictions fédérales) — mais l'absence de restriction fédérale ne prouve PAS que l'essence est autorisée : un règlement privé, une servitude ou une règle d'association pourrait être plus restrictif. Aucune donnée trouvée sur l'association de riverains — statut de navigation insuffisamment documenté, appel/validation municipale nécessaire avant offre.",lat:45.337,lng:-72.440},
-  {lac:"Étang Peasley",cat:"mid",eau:3,baignade:true,nav:"nonmotorise",tete:false,problemes:"À valider",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"Nature, calme, secteur Austin, entre Lac Gilbert et Lac des Sitelles",note:"Association des riverains pour la protection du lac Peasley active — convention VOLONTAIRE (pas un règlement légal contraignant) d'interdiction des bateaux à moteur, mise à jour août 2024. Statut insuffisamment documenté par une source officielle (municipale ou fédérale) pour confirmer essence/électrique/aucun moteur avec certitude — appel de validation recommandé. Secteur Austin, à ~5 km au nord du village, participe probablement au suivi RSVL de la municipalité (comme Malaga/Desmarais/Brais).",lat:45.229,lng:-72.277},
-  {lac:"Lac des Français",cat:"warn",eau:3,baignade:true,nav:"moteur",tete:false,problemes:"À valider",prix:"À valider",prixMin:0,liq:"À valider",liqScore:0,lt:"À valider",ltScore:0,profil:"À valider selon secteur riverain",note:"Moteur essence probable — les annexes fédérales (coord. 45°26/72°13) montrent une restriction horaire de surf sur sillage à cet endroit, ce qui implique des bateaux à moteur puissants ; à confirmer, nav marqué à valider par prudence. Position provisoire près du Lac Orford — à repositionner précisément (David) une fois le secteur exact confirmé. Aucune source publique trouvée pour ce nom en Estrie (le seul 'Lac des Français' répertorié à la Commission de toponymie est à Sainte-Marcelline-de-Kildare, en Lanaudière) — toutes les données sont à valider directement sur le terrain.",lat:45.335,lng:-72.230},
 ];
 
 const CAT_LABELS={top:"🔝 Premium",mid:"💰 Bon rapport",warn:"⚠️ À analyser",bad:"🔴 Déconseillé",niche:"🎯 Niche"};
@@ -920,22 +909,6 @@ let properties=JSON.parse(localStorage.getItem('lacs-props')||'[]');
 let activeFilters={cat:[],nav:[],special:[],liq:[],lt:[]};
 let eauMin=1, currentView='grid', propSrcFilter='all';
 let map=null, markers=[];
-
-// ── ÉTIQUETTES DE CARTE (nom des lacs, repositionnables) ──────────────
-// Feature demandee par David mais jamais terminee (les boutons existaient
-// deja dans le HTML/CSS, toggleLabelEdit/resetLabelPositions n'etaient
-// jamais definies -> clic sans effet visible, "je ne vois pas la
-// modification" sur la position des lacs).
-const LABEL_OFFSETS_KEY='lacs-label-offsets';
-const DEFAULT_LABEL_OFFSET={dx:16,dy:-8};
-let labelOffsets=JSON.parse(localStorage.getItem(LABEL_OFFSETS_KEY)||'{}');
-let labelEls={}; // nom du lac -> element .map-label
-let labelEditMode=false;
-// Position du point d'ancrage en lat/lng absolue (pas en offset pixels) :
-// un offset pixel fixe representerait une distance geo differente a chaque
-// zoom, ce qui faisait "deriver" le point loin du lac en zoomant.
-const ANCHOR_POS_KEY='lacs-anchor-positions';
-let anchorPositions=JSON.parse(localStorage.getItem(ANCHOR_POS_KEY)||'{}');
 
 // ── PROPS STORAGE ─────────────────────────────────────
 function saveProps(){localStorage.setItem('lacs-props',JSON.stringify(properties));}
@@ -1099,23 +1072,7 @@ function matchesFilters(lac){
   if(q&&!lac.lac.toLowerCase().includes(q))return false;
   if(lac.eau<eauMin)return false;
   if(activeFilters.cat.length&&!activeFilters.cat.includes(lac.cat))return false;
-  if(activeFilters.nav.length){
-    // 4 chips independants, combines en OU (comme les autres filtres),
-    // chacun correspond exactement a sa propre categorie de lac.nav (pas
-    // de chevauchement, ex: "electrique" n'inclut PAS les lacs a essence) :
-    // - electrique : lacs a moteur electrique seulement
-    // - essence : lacs a moteur essence
-    // - sansmoteur : lacs sans aucun moteur
-    // - tout : n'importe quel lac
-    const m=activeFilters.nav.some(v=>{
-      if(v==='tout')return true;
-      if(v==='electrique')return lac.nav==='electrique';
-      if(v==='essence')return lac.nav==='moteur';
-      if(v==='sansmoteur')return lac.nav==='nonmotorise';
-      return false;
-    });
-    if(!m)return false;
-  }
+  if(activeFilters.nav.length&&!activeFilters.nav.includes(lac.nav))return false;
   if(activeFilters.liq.length){const m=activeFilters.liq.some(v=>{if(v==='bonne')return lac.liqScore>=4;if(v==='moyenne')return lac.liqScore===3;if(v==='faible')return lac.liqScore<=2;});if(!m)return false;}
   if(activeFilters.lt.length){const m=activeFilters.lt.some(v=>{if(v==='eleve')return lac.ltScore>=4;if(v==='moyen')return lac.ltScore===3||lac.ltScore===3.5;if(v==='faible')return lac.ltScore<=2.5;});if(!m)return false;}
   for(const s of activeFilters.special){
@@ -1123,13 +1080,7 @@ function matchesFilters(lac){
     if(s==='tete'&&!lac.tete)return false;
     if(s==='noprobleme'&&lac.problemes!=='Faible')return false;
     if(s==='fav'&&!favorites.includes(lac.lac))return false;
-    if(s==='calme'&&lac.nav!=='nonmotorise')return false;
-    if(s==='famille'&&!lac.profil.toLowerCase().includes('famille'))return false;
-    if(s==='kayak'&&lac.nav==='moteur')return false;
-    if(s==='plage'&&!lac.baignade)return false;
-    if(s==='tennis'&&!(lac.activites||[]).includes('tennis'))return false;
-    if(s==='souscote'&&!/sous-estim|sous-cot|méconnu|valeur cachée|potentiel caché/i.test(lac.note+' '+lac.profil))return false;
-    if(s==='intime'&&!/intimit|peu de riverain|discr[eé]t/i.test(lac.note+' '+lac.profil))return false;
+    if(s==='sansessence'&&lac.nav==='moteur')return false;
   }
   return true;
 }
@@ -1145,33 +1096,18 @@ function getSorted(rows){
 }
 
 function stars(n){return'★'.repeat(n)+'<span class="empty">'+'★'.repeat(5-n)+'</span>';}
-// ── ACTIVITÉS / ATTRAITS ────────────────────────────────
-// kayak est toujours affiche (propulsion humaine permise sur tous les
-// lacs), bateau/plage se deduisent des champs existants (nav/baignade).
-// Les autres (paddle, voile, kitesurf, jeux, tennis) ne s'affichent que
-// si confirmes pour ce lac precis via lac.activites (donnee reelle, pas
-// devinee) pour eviter d'annoncer un attrait qui n'existe pas.
-const ACTIVITY_ICONS={bateau:'🚤 Bateau',kayak:'🛶 Kayak/Canot',paddle:'🏄 Paddle',voile:'⛵ Voile',kitesurf:'🪁 Kitesurf',jeux:'🎠 Jeux enfants',plage:'🏖️ Plage',tennis:'🎾 Tennis'};
-function lacActivites(lac){
-  const acts=['kayak'];
-  if(lac.nav==='moteur')acts.push('bateau');
-  if(lac.baignade)acts.push('plage');
-  if(lac.activites)acts.push(...lac.activites);
-  return[...new Set(acts)].filter(a=>ACTIVITY_ICONS[a]);
-}
-function pillsActivites(lac){
-  return lacActivites(lac).map(a=>`<span class="pill act">${ACTIVITY_ICONS[a]}</span>`).join('');
-}
 function pillNav(nav){return`<span class="pill ok">${NAV_LABELS[nav]||nav}</span>`;}
 function pillBaignade(b){return b?'<span class="pill ok">🏊 Baignade</span>':'<span class="pill bad">❌ Baignade</span>';}
 function pillTete(t){return t===true?'<span class="pill ok">🏔 Lac de tête</span>':(t==='partial'?'<span class="pill warn">⚠️ Tête partielle</span>':'');}
 function pillProbleme(p){return p==='Faible'?'<span class="pill ok">✅ Sans problème</span>':`<span class="pill warn">${p}</span>`;}
 
-function lacCardHTML(lac){
-  const isFav=favorites.includes(lac.lac);
-  return`<div class="card cat-${lac.cat}" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">
+function renderGrid(rows){
+  const el=document.getElementById('grid-view');
+  el.innerHTML=rows.map(lac=>{
+    const isFav=favorites.includes(lac.lac);
+    return`<div class="card cat-${lac.cat}" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">
       <div class="card-header">
-        <div class="card-name">${lac.lac}</div>
+        <div class="card-name">${lac.lac}${getNoteFor(lac.lac)?'<span title="Note personnelle" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-left:6px;vertical-align:middle;opacity:.8;"></span>':''}</div>
         <div style="display:flex;align-items:center;gap:7px">
           <button class="fav-btn" onclick="toggleFav('${lac.lac.replace(/'/g,"\\'")}',event)">${isFav?'★':'☆'}</button>
           <span class="cat-badge ${lac.cat}">${CAT_LABELS[lac.cat]}</span>
@@ -1179,29 +1115,8 @@ function lacCardHTML(lac){
       </div>
       <div class="card-stars">${stars(lac.eau)}</div>
       <div class="card-pills">${pillBaignade(lac.baignade)}${pillNav(lac.nav)}${pillTete(lac.tete)}${pillProbleme(lac.problemes)}</div>
-      <div class="card-pills">${pillsActivites(lac)}</div>
       <div class="card-prix">${lac.prix}</div>
       <div class="card-profil">${lac.profil}</div>
-    </div>`;
-}
-function renderGrid(rows){
-  document.getElementById('grid-view').innerHTML=rows.map(lacCardHTML).join('');
-}
-function renderNavColumns(rows){
-  const cols=[
-    {key:'nonmotorise',title:'🚣 Sans moteur',subtitle:'Ni électrique, ni thermique'},
-    {key:'electrique',title:'⚡ Électrique',subtitle:'Moteur électrique seulement'},
-    {key:'moteur',title:'⛵ Thermique',subtitle:'Moteur essence autorisé'},
-  ];
-  document.getElementById('nav-view').innerHTML=cols.map(c=>{
-    const items=rows.filter(l=>l.nav===c.key);
-    return`<div class="nav-col">
-      <div class="nav-col-header">
-        <div class="nav-col-title">${c.title}</div>
-        <div class="nav-col-subtitle">${c.subtitle}</div>
-        <div class="nav-col-count">${items.length} lac${items.length>1?'s':''}</div>
-      </div>
-      <div class="nav-col-body">${items.map(lacCardHTML).join('')||'<div class="nav-col-empty">Aucun lac</div>'}</div>
     </div>`;
   }).join('');
 }
@@ -1225,209 +1140,28 @@ function initMap(){
   if(map)return;
   map=L.map('map-container',{center:[45.38,-72.1],zoom:9,preferCanvas:true});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18,subdomains:'abcd'}).addTo(map);
-  map.on('move zoom',positionLabels);
-  loadLakePolygons();
 }
-function makeMarkerIcon(){
-  // Icone invisible : garde le marqueur cliquable (popup) sans dessiner de
-  // point sur la carte, le contour du lac (ou la ligne d'etiquette) suffit.
-  const s=6;
-  return L.divIcon({html:'',className:'',iconSize:[s,s],iconAnchor:[s/2,s/2],popupAnchor:[0,-(s/2)]});
-}
-
-// ── CONTOURS DE LACS (remplissage colore) ──────────────
-// lake-polygons.json est pre-genere une fois (voir script de generation,
-// donnees OpenStreetMap/Overpass) et associe chaque nom de lac a son
-// contour reel. Charge en local (meme origine, pas de CORS/reseau tiers
-// au runtime). Les lacs absents du fichier gardent simplement leur point
-// de couleur.
-let lakePolygons=null;
-let polygonLayers=[];
-let lastFilteredLacs=[];
-async function loadLakePolygons(){
-  if(lakePolygons)return lakePolygons;
-  try{
-    const res=await fetch('lake-polygons.json');
-    lakePolygons=await res.json();
-  }catch(err){
-    lakePolygons={};
-  }
-  if(currentView==='map')renderMap(lastFilteredLacs);
-  return lakePolygons;
-}
-function findLakePolygon(lac){
-  return(lakePolygons&&lakePolygons[lac.lac])||null;
+function makeMarkerIcon(color,active){
+  const s=active?34:26;
+  return L.divIcon({html:`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s+8}" viewBox="0 0 34 42"><circle cx="17" cy="17" r="13" fill="${color}" opacity="${active?1:0.35}" stroke="#fff" stroke-width="${active?2:1}"/><ellipse cx="17" cy="41" rx="5" ry="2" fill="rgba(0,0,0,0.25)"/><line x1="17" y1="30" x2="17" y2="39" stroke="${color}" stroke-width="2" opacity="${active?0.8:0.3}"/><circle cx="17" cy="17" r="6" fill="#fff" opacity="${active?0.9:0.5}"/></svg>`,className:'',iconSize:[s,s+8],iconAnchor:[s/2,s+8],popupAnchor:[0,-(s+8)]});
 }
 function renderMap(filteredLacs){
   if(!map)initMap();
-  lastFilteredLacs=filteredLacs;
   markers.forEach(m=>m.remove());markers=[];
-  polygonLayers.forEach(p=>p.remove());polygonLayers=[];
-  filteredLacs.forEach(lac=>{
-    const icon=makeMarkerIcon();
+  const names=new Set(filteredLacs.map(l=>l.lac));
+  LACS.forEach(lac=>{
+    const active=names.has(lac.lac);
+    const icon=makeMarkerIcon(active?CAT_COLORS[lac.cat]:'#3a4558',active);
     const isFav=favorites.includes(lac.lac);
     const popup=`<div class="popup-name">${isFav?'★ ':''} ${lac.lac}</div>
       <div class="popup-cat"><span class="cat-badge ${lac.cat}">${CAT_LABELS[lac.cat]}</span></div>
       <div class="popup-stars">${'★'.repeat(lac.eau)}${'☆'.repeat(5-lac.eau)}</div>
       <div class="popup-pills">${lac.baignade?'<span class="pill ok">🏊 Baignade</span>':'<span class="pill bad">❌ Baignade</span>'}<span class="pill ok">${NAV_LABELS[lac.nav]||lac.nav}</span>${lac.tete===true?'<span class="pill ok">🏔 Tête</span>':''}</div>
-      <div class="popup-pills">${pillsActivites(lac)}</div>
       <div class="popup-prix">${lac.prix}</div>
       <div class="popup-note">${lac.note}</div>
       <button class="popup-btn" onclick="openModal('${lac.lac.replace(/'/g,"\\'")}')">Voir la fiche complète →</button>`;
-    const poly=findLakePolygon(lac);
-    const color=CAT_COLORS[lac.cat];
-    if(poly){
-      polygonLayers.push(L.polygon(poly,{color,weight:1.5,opacity:0.7,fillColor:color,fillOpacity:0.35}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
-    }else{
-      // Pas de contour reel trouve (absent d'OpenStreetMap) : petit cercle
-      // colore de repli, pour que chaque lac soit quand meme visible.
-      polygonLayers.push(L.circle([lac.lat,lac.lng],{radius:130,color,weight:1.5,opacity:0.7,fillColor:color,fillOpacity:0.4}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
-    }
-    markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:1,zIndexOffset:100}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
+    markers.push(L.marker([lac.lat,lac.lng],{icon,opacity:active?1:0.4,zIndexOffset:active?100:0}).addTo(map).bindPopup(popup,{maxWidth:280,minWidth:220}));
   });
-  renderLabels(filteredLacs);
-}
-
-// ── ÉTIQUETTES DE CARTE ────────────────────────────────
-const SVGNS='http://www.w3.org/2000/svg';
-let lineEls={},dotEls={};
-function renderLabels(filteredLacs){
-  const container=document.getElementById('map-container');
-  const svg=document.getElementById('label-lines');
-  Object.values(labelEls).forEach(el=>el.remove());
-  labelEls={};
-  svg.innerHTML='';
-  lineEls={};dotEls={};
-  filteredLacs.forEach(lac=>{
-    const color=CAT_COLORS[lac.cat];
-
-    const line=document.createElementNS(SVGNS,'line');
-    line.setAttribute('stroke',color);
-    line.setAttribute('stroke-width','1.5');
-    line.setAttribute('opacity','0.8');
-    svg.appendChild(line);
-    lineEls[lac.lac]=line;
-
-    const dot=document.createElementNS(SVGNS,'circle');
-    dot.setAttribute('r','5');
-    dot.setAttribute('fill',color);
-    dot.setAttribute('stroke','#fff');
-    dot.setAttribute('stroke-width','1.5');
-    // Point cache par defaut : visible seulement en mode repositionnement,
-    // pour ne pas encombrer la carte (le contour du lac / la ligne suffit).
-    dot.setAttribute('opacity',labelEditMode?'1':'0');
-    svg.appendChild(dot);
-    dotEls[lac.lac]=dot;
-    if(labelEditMode)makeAnchorDraggable(dot,lac.lac);
-
-    const div=document.createElement('div');
-    div.className='map-label active';
-    div.style.setProperty('--label-cat-color',color);
-    div.textContent=lac.lac.replace(/\bLac\b\s*/gi,'').trim()||lac.lac;
-    if(!labelEditMode)div.onclick=()=>openModal(lac.lac);
-    container.appendChild(div);
-    labelEls[lac.lac]=div;
-    if(labelEditMode)makeLabelDraggable(div,lac.lac);
-  });
-  positionLabels();
-}
-// Point du bord de l'étiquette le plus proche du lac, pour ancrer la ligne.
-function rectEdgePoint(cx,cy,halfW,halfH,tx,ty){
-  const dx=tx-cx,dy=ty-cy;
-  if(dx===0&&dy===0)return[cx,cy];
-  const scale=Math.min(dx?halfW/Math.abs(dx):Infinity,dy?halfH/Math.abs(dy):Infinity,1);
-  return[cx+dx*scale,cy+dy*scale];
-}
-function positionLabels(){
-  if(!map)return;
-  LACS.forEach(lac=>{
-    const el=labelEls[lac.lac];
-    if(!el)return;
-    const anchorLatLng=anchorPositions[lac.lac]||{lat:lac.lat,lng:lac.lng};
-    const anchorPt=map.latLngToContainerPoint([anchorLatLng.lat,anchorLatLng.lng]);
-    const anchorX=anchorPt.x,anchorY=anchorPt.y;
-    const off=labelOffsets[lac.lac]||DEFAULT_LABEL_OFFSET;
-    // Espacement purement visuel : plus on est loin en zoom, plus les lacs
-    // se rapprochent a l'ecran, donc on eloigne davantage les etiquettes de
-    // leur point pour eviter qu'elles se chevauchent. Ne modifie pas les
-    // positions enregistrees (labelOffsets), juste le rendu a ce zoom.
-    const zoomSpread=Math.min(3,Math.max(1,1+(12-map.getZoom())*0.35));
-    const labelX=anchorX+off.dx*zoomSpread,labelY=anchorY+off.dy*zoomSpread;
-    el.style.left=labelX+'px';
-    el.style.top=labelY+'px';
-
-    const dot=dotEls[lac.lac],line=lineEls[lac.lac];
-    if(dot){dot.setAttribute('cx',anchorX);dot.setAttribute('cy',anchorY);}
-    if(line){
-      const w=el.offsetWidth||0,h=el.offsetHeight||0;
-      const[ex,ey]=rectEdgePoint(labelX+w/2,labelY+h/2,w/2+3,h/2+3,anchorX,anchorY);
-      line.setAttribute('x1',ex);line.setAttribute('y1',ey);
-      line.setAttribute('x2',anchorX);line.setAttribute('y2',anchorY);
-    }
-  });
-}
-function makeLabelDraggable(el,lacName){
-  el.style.cursor='move';
-  el.onpointerdown=function(e){
-    e.preventDefault();e.stopPropagation();
-    el.setPointerCapture(e.pointerId);
-    const startX=e.clientX,startY=e.clientY;
-    const orig=labelOffsets[lacName]||DEFAULT_LABEL_OFFSET;
-    function onMove(ev){
-      labelOffsets[lacName]={dx:orig.dx+(ev.clientX-startX),dy:orig.dy+(ev.clientY-startY)};
-      positionLabels();
-    }
-    function onUp(){
-      el.removeEventListener('pointermove',onMove);
-      el.removeEventListener('pointerup',onUp);
-      localStorage.setItem(LABEL_OFFSETS_KEY,JSON.stringify(labelOffsets));
-    }
-    el.addEventListener('pointermove',onMove);
-    el.addEventListener('pointerup',onUp);
-  };
-}
-function makeAnchorDraggable(dot,lacName){
-  dot.style.cursor='move';
-  dot.style.pointerEvents='auto';
-  dot.onpointerdown=function(e){
-    e.preventDefault();e.stopPropagation();
-    dot.setPointerCapture(e.pointerId);
-    const container=document.getElementById('map-container');
-    function onMove(ev){
-      const rect=container.getBoundingClientRect();
-      const latlng=map.containerPointToLatLng(L.point(ev.clientX-rect.left,ev.clientY-rect.top));
-      anchorPositions[lacName]={lat:latlng.lat,lng:latlng.lng};
-      positionLabels();
-    }
-    function onUp(){
-      dot.removeEventListener('pointermove',onMove);
-      dot.removeEventListener('pointerup',onUp);
-      localStorage.setItem(ANCHOR_POS_KEY,JSON.stringify(anchorPositions));
-    }
-    dot.addEventListener('pointermove',onMove);
-    dot.addEventListener('pointerup',onUp);
-  };
-}
-function toggleLabelEdit(){
-  labelEditMode=!labelEditMode;
-  const btn=document.getElementById('btn-edit-labels');
-  if(btn)btn.textContent=labelEditMode?'✅ Terminer le repositionnement':'✏️ Repositionner étiquettes';
-  Object.entries(labelEls).forEach(([name,el])=>{
-    if(labelEditMode){makeLabelDraggable(el,name);el.onclick=null;}
-    else{el.onpointerdown=null;el.style.cursor='';el.onclick=()=>openModal(name);}
-  });
-  Object.entries(dotEls).forEach(([name,dot])=>{
-    dot.setAttribute('opacity',labelEditMode?'1':'0');
-    if(labelEditMode)makeAnchorDraggable(dot,name);
-    else{dot.onpointerdown=null;dot.style.cursor='';dot.style.pointerEvents='none';}
-  });
-}
-function resetLabelPositions(){
-  labelOffsets={};
-  anchorPositions={};
-  localStorage.removeItem(LABEL_OFFSETS_KEY);
-  localStorage.removeItem(ANCHOR_POS_KEY);
-  positionLabels();
 }
 
 // ── STATS & APPLY ────────────────────────────────────
@@ -1449,9 +1183,8 @@ function applyFilters(){
   document.getElementById('count-badge').textContent=sorted.length+' lac'+(sorted.length>1?'s':'');
   document.getElementById('result-count').textContent=sorted.length+' lac'+(sorted.length>1?'s':'')+' affiché'+(sorted.length>1?'s':'');
   const empty=document.getElementById('empty-state');
-  if(sorted.length===0&&currentView!=='props'&&currentView!=='nav'){empty.style.display='block';document.getElementById('grid-view').innerHTML='';document.getElementById('table-body').innerHTML='';}
+  if(sorted.length===0&&currentView!=='props'){empty.style.display='block';document.getElementById('grid-view').innerHTML='';document.getElementById('table-body').innerHTML='';}
   else{empty.style.display='none';renderGrid(sorted);renderTable(sorted);}
-  renderNavColumns(sorted);
   if(currentView==='map')renderMap(filtered);
 }
 
@@ -1469,9 +1202,7 @@ function setView(view,btn){
   document.getElementById('grid-view').style.display=view==='grid'?'grid':'none';
   document.getElementById('table-view').style.display=view==='table'?'block':'none';
   document.getElementById('map-view').style.display=view==='map'?'block':'none';
-  document.getElementById('nav-view').style.display=view==='nav'?'grid':'none';
   document.getElementById('props-view').style.display=view==='props'?'block':'none';
-  document.getElementById('label-edit-controls').style.display=view==='map'?'flex':'none';
   document.getElementById('empty-state').style.display='none';
   if(view==='map'){const f=LACS.filter(matchesFilters);renderMap(f);setTimeout(()=>{if(map)map.invalidateSize();},100);}
   if(view==='props'){renderProps();document.getElementById('result-count').textContent='Vue propriétés';}
@@ -1482,6 +1213,18 @@ function setView(view,btn){
     document.getElementById('mobile-btn').textContent='⚙ Filtres';
   }
 }
+
+
+// ── NOTES PERSONNELLES ───────────────────────────────
+const NOTES_KEY = 'lacs-notes';
+function loadNotes(){ return JSON.parse(localStorage.getItem(NOTES_KEY)||'{}'); }
+function saveNote(lacName, text){
+  const notes = loadNotes();
+  if(text.trim()) notes[lacName] = text;
+  else delete notes[lacName];
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+}
+function getNoteFor(lacName){ return loadNotes()[lacName] || ''; }
 
 // ── MODAL LAC ─────────────────────────────────────────
 function openModal(lacName){
@@ -1496,19 +1239,38 @@ function openModal(lacName){
       <div class="modal-field"><label>Navigation</label><span>${NAV_LABELS[lac.nav]||lac.nav}</span></div>
       <div class="modal-field"><label>Lac de tête</label><span>${lac.tete===true?'✅ Oui':(lac.tete==='partial'?'⚠️ Partielle':'❌ Non')}</span></div>
       <div class="modal-field"><label>Problèmes</label><span>${lac.problemes}</span></div>
-      <div class="modal-field"><label title="Estimation interne, non basée sur des transactions vérifiées Centris/APCIQ">Fourchette prix (estimation)</label><span style="color:var(--gold)">${lac.prix}</span></div>
+      <div class="modal-field"><label>Fourchette prix</label><span style="color:var(--gold)">${lac.prix}</span></div>
       <div class="modal-field"><label>Liquidité marché</label><span>${lac.liq}</span></div>
       <div class="modal-field"><label>Potentiel long terme</label><span>${lac.lt}</span></div>
     </div>
-    <div class="modal-section"><h4>Activités</h4><div class="card-pills">${pillsActivites(lac)}</div></div>
     <div class="modal-divider"></div>
     <div class="modal-section"><h4>Profil acheteur cible</h4><p>${lac.profil}</p></div>
     <div class="modal-section"><h4>Note courtier</h4><p>${lac.note}</p></div>
+    <div class="modal-divider"></div>
+    <div class="modal-notes-section">
+      <div class="modal-notes-label">✏️ Notes personnelles <span>— sauvegardées dans votre navigateur</span></div>
+      <textarea class="modal-notes-textarea" id="modal-note-field"
+        placeholder="Ajouter un commentaire sur ce lac…"
+        oninput="autoSaveNote('${lac.lac.replace(/'/g,"\\'")}', this)"
+      >${getNoteFor(lac.lac)}</textarea>
+      <div class="modal-notes-saved" id="modal-note-saved">✓ Sauvegardé</div>
+    </div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button onclick="showOnMap('${lac.lac.replace(/'/g,"\\'")}');closeModalBtn();" style="flex:1;padding:8px;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🗺 Voir sur la carte</button>
       <button onclick="closeModalBtn();setView('props',document.querySelectorAll('.view-btn')[3]);openPropForm();" style="flex:1;padding:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">🏡 Ajouter une propriété</button>
     </div>`;
   document.getElementById('modal').classList.add('open');
+}
+
+
+let noteSaveTimer = null;
+function autoSaveNote(lacName, el){
+  clearTimeout(noteSaveTimer);
+  noteSaveTimer = setTimeout(()=>{
+    saveNote(lacName, el.value);
+    const saved = document.getElementById('modal-note-saved');
+    if(saved){ saved.classList.add('show'); setTimeout(()=>saved.classList.remove('show'), 2000); }
+  }, 600);
 }
 
 function showOnMap(lacName){
@@ -1537,6 +1299,170 @@ function toggleSidebar(){
 // Init
 applyFilters();
 renderProps();
+
+// ══════════════════════════════════════════
+// SYSTÈME ÉTIQUETTES DRAGGABLES
+// ══════════════════════════════════════════
+const LABEL_KEY2 = 'lacs-label-offsets';
+let labelOffsets2 = {};
+try { labelOffsets2 = JSON.parse(localStorage.getItem(LABEL_KEY2)||'{}'); } catch(e){}
+let labelEditMode2 = false;
+let dragState2 = null;
+let labelDivs2 = {};
+
+function saveLabelOffsets2(){ try{localStorage.setItem(LABEL_KEY2,JSON.stringify(labelOffsets2));}catch(e){} }
+
+function resetLabelPositions(){
+  if(!confirm('Réinitialiser toutes les positions des étiquettes ?')) return;
+  labelOffsets2={};saveLabelOffsets2();
+  renderMapLabels();
+}
+
+function toggleLabelEdit(){
+  labelEditMode2=!labelEditMode2;
+  const btn=document.getElementById('btn-edit-labels');
+  const hint=document.getElementById('edit-mode-hint');
+  const rst=document.getElementById('btn-reset-labels');
+  const txt=document.getElementById('btn-edit-label-text');
+  if(labelEditMode2){
+    if(btn){btn.style.background='var(--gold)';btn.style.color='#1a1a1a';}
+    if(txt)txt.textContent='✅ Édition active — glisse les étiquettes';
+    if(hint)hint.style.display='block';
+    if(rst)rst.style.display='flex';
+    if(map){map.dragging.disable();map.scrollWheelZoom.disable();}
+  } else {
+    if(btn){btn.style.background='rgba(22,28,39,0.92)';btn.style.color='var(--gold)';}
+    if(txt)txt.textContent='Mode édition étiquettes';
+    if(hint)hint.style.display='none';
+    if(rst)rst.style.display='none';
+    if(map){map.dragging.enable();map.scrollWheelZoom.enable();}
+  }
+  Object.values(labelDivs2).forEach(el=>{
+    el.style.cursor=labelEditMode2?'grab':'default';
+    el.style.outline=labelEditMode2?'2px dashed rgba(201,168,76,0.9)':'none';
+    el.style.outlineOffset='2px';
+  });
+}
+
+function renderMapLabels(){
+  // Remove existing label divs
+  Object.values(labelDivs2).forEach(el=>{if(el.parentNode)el.parentNode.removeChild(el);});
+  labelDivs2={};
+  if(!map)return;
+
+  const mapContainer=document.getElementById('map-container');
+
+  LACS.forEach(lac=>{
+    const pt=map.latLngToContainerPoint([lac.lat,lac.lng]);
+    const off=labelOffsets2[lac.lac]||{x:12,y:-16};
+    const el=document.createElement('div');
+    el.className='map-float-label';
+    el.textContent=lac.lac;
+    el.style.cssText=`
+      position:absolute;
+      left:${pt.x+off.x}px;
+      top:${pt.y+off.y}px;
+      z-index:450;
+      pointer-events:auto;
+      cursor:default;
+      font-family:'DM Sans',sans-serif;
+      font-size:11px;font-weight:600;
+      padding:2px 7px;border-radius:5px;
+      white-space:nowrap;
+      background:rgba(22,28,39,0.88);
+      color:#e8e4db;
+      border:1px solid rgba(201,168,76,0.4);
+      box-shadow:0 1px 4px rgba(0,0,0,0.35);
+      user-select:none;
+      transition:outline 0.1s;
+    `;
+    mapContainer.appendChild(el);
+    labelDivs2[lac.lac]=el;
+
+    if(labelEditMode2){
+      el.style.cursor='grab';
+      el.style.outline='2px dashed rgba(201,168,76,0.9)';
+    }
+
+    // Mouse drag
+    el.addEventListener('mousedown',(e)=>{
+      if(!labelEditMode2)return;
+      e.stopPropagation();e.preventDefault();
+      const cur=labelOffsets2[lac.lac]||{x:12,y:-16};
+      dragState2={el,name:lac.lac,startX:e.clientX,startY:e.clientY,ox:cur.x,oy:cur.y,ptx:pt.x,pty:pt.y};
+      el.style.cursor='grabbing';
+    });
+
+    // Touch drag
+    el.addEventListener('touchstart',(e)=>{
+      if(!labelEditMode2)return;
+      e.stopPropagation();
+      const t=e.touches[0];
+      const cur=labelOffsets2[lac.lac]||{x:12,y:-16};
+      dragState2={el,name:lac.lac,startX:t.clientX,startY:t.clientY,ox:cur.x,oy:cur.y,ptx:pt.x,pty:pt.y};
+    },{passive:true});
+
+    el.addEventListener('click',(e)=>{
+      if(labelEditMode2){e.stopPropagation();return;}
+      openModal(lac.lac);
+    });
+  });
+
+  // Global move/up on mapContainer
+  if(!mapContainer._labelListeners){
+    mapContainer._labelListeners=true;
+    mapContainer.addEventListener('mousemove',(e)=>{
+      if(!dragState2||!labelEditMode2)return;
+      const dx=e.clientX-dragState2.startX, dy=e.clientY-dragState2.startY;
+      const nx=dragState2.ox+dx, ny=dragState2.oy+dy;
+      dragState2.el.style.left=(dragState2.ptx+nx)+'px';
+      dragState2.el.style.top=(dragState2.pty+ny)+'px';
+      dragState2.nx=nx;dragState2.ny=ny;
+    });
+    mapContainer.addEventListener('touchmove',(e)=>{
+      if(!dragState2||!labelEditMode2)return;
+      e.preventDefault();
+      const t=e.touches[0];
+      const dx=t.clientX-dragState2.startX, dy=t.clientY-dragState2.startY;
+      const nx=dragState2.ox+dx, ny=dragState2.oy+dy;
+      dragState2.el.style.left=(dragState2.ptx+nx)+'px';
+      dragState2.el.style.top=(dragState2.pty+ny)+'px';
+      dragState2.nx=nx;dragState2.ny=ny;
+    },{passive:false});
+    const onUp=()=>{
+      if(!dragState2)return;
+      if(dragState2.nx!==undefined){labelOffsets2[dragState2.name]={x:dragState2.nx,y:dragState2.ny};saveLabelOffsets2();}
+      dragState2.el.style.cursor=labelEditMode2?'grab':'default';
+      dragState2=null;
+    };
+    mapContainer.addEventListener('mouseup',onUp);
+    mapContainer.addEventListener('touchend',onUp);
+  }
+
+  // Reposition labels on map move/zoom
+  map.off('moveend zoomend','_labelRepos');
+  map.on('moveend zoomend',function(){
+    LACS.forEach(lac=>{
+      const el=labelDivs2[lac.lac];if(!el)return;
+      const pt2=map.latLngToContainerPoint([lac.lat,lac.lng]);
+      const off2=labelOffsets2[lac.lac]||{x:12,y:-16};
+      el.style.left=(pt2.x+off2.x)+'px';
+      el.style.top=(pt2.y+off2.y)+'px';
+      // Update drag state reference point too
+      if(dragState2&&dragState2.name===lac.lac){dragState2.ptx=pt2.x;dragState2.pty=pt2.y;}
+    });
+  });
+}
+
+// Patch setView to call renderMapLabels after map renders
+const _origSetView = setView;
+setView = function(view, btn){
+  _origSetView(view, btn);
+  if(view==='map'){
+    setTimeout(renderMapLabels, 300);
+  }
+};
+
 </script>
 </body>
 </html>
