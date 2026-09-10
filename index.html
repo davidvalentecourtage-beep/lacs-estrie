@@ -675,6 +675,7 @@ function togglePwd() {
         <button id="btn-edit-labels" onclick="toggleLabelEdit()" style="padding:10px 20px;border-radius:8px;border:2px solid var(--gold);background:var(--gold-dim);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">✏️ Repositionner étiquettes</button>
         <button onclick="resetLabelPositions()" style="padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">↺ Réinitialiser</button>
         <button id="btn-trace-contour" onclick="toggleContourMode()" style="padding:10px 20px;border-radius:8px;border:2px solid var(--blue);background:var(--blue-dim);color:var(--blue);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;" title="Cliquez sur un lac puis sur la carte pour dessiner son contour">✏️ Tracer un contour</button>
+        <button id="btn-satellite" onclick="toggleSatellite()" style="padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;" title="Vue satellite — utile pour tracer un contour précisément">🛰️ Satellite</button>
       </div>
       <div id="contour-status" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
         <span id="contour-status-text" style="font-size:12px;color:var(--text-muted);flex:1;">Cliquez sur un lac à tracer</span>
@@ -1255,13 +1256,23 @@ function renderTable(rows){
 }
 
 // ── MAP ───────────────────────────────────────────────
+let streetLayer=null,satLayer=null,satMode=false;
 function initMap(){
   if(map)return;
   map=L.map('map-container',{center:[45.38,-72.1],zoom:9,preferCanvas:true});
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19,subdomains:'abc'}).addTo(map);
+  streetLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19,subdomains:'abc'}).addTo(map);
+  satLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri, Maxar, Earthstar Geographics',maxZoom:19});
   map.on('move zoom',positionLabels);
   map.on('click',onMapClickForContour);
   loadLakePolygons();
+}
+function toggleSatellite(){
+  if(!map)return;
+  satMode=!satMode;
+  if(satMode){map.removeLayer(streetLayer);satLayer.addTo(map);}
+  else{map.removeLayer(satLayer);streetLayer.addTo(map);}
+  const btn=document.getElementById('btn-satellite');
+  if(btn)btn.textContent=satMode?'🗺️ Plan':'🛰️ Satellite';
 }
 function makeMarkerIcon(){
   // Icone invisible : garde le marqueur cliquable (popup) sans dessiner de
