@@ -618,6 +618,7 @@ function togglePwd() {
         <button class="chip c-blue" data-filter="special" data-val="tennis" onclick="toggleChip(this)">🎾 Tennis</button>
         <button class="chip c-blue" data-filter="special" data-val="souscote" onclick="toggleChip(this)" title="Décrit comme sous-estimé/méconnu dans la note">💎 Sous-coté</button>
         <button class="chip c-blue" data-filter="special" data-val="intime" onclick="toggleChip(this)" title="Décrit comme intime/discret/peu de riverains dans la note">🤍 Intime</button>
+        <button class="chip c-blue" data-filter="special" data-val="ecologique" onclick="toggleChip(this)" title="Décrit comme écologique/protégé dans la note ou catégorie niche">🌿 Écologique</button>
       </div>
     </div>
     <div class="filter-section">
@@ -1165,6 +1166,7 @@ function matchesFilters(lac){
     if(s==='tennis'&&!(lac.activites||[]).includes('tennis'))return false;
     if(s==='souscote'&&!/sous-estim|sous-cot|méconnu|valeur cachée|potentiel caché/i.test(lac.note+' '+lac.profil))return false;
     if(s==='intime'&&!/intimit|peu de riverain|discr[eé]t/i.test(lac.note+' '+lac.profil))return false;
+    if(s==='ecologique'&&lac.cat!=='niche'&&!/écologique|protection|conservation|protégé/i.test(lac.note+' '+lac.profil))return false;
   }
   return true;
 }
